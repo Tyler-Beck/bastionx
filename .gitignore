@@ -1,0 +1,47 @@
+# Build artifacts
+build/
+out/
+*.exe
+*.dll
+*.lib
+*.obj
+*.pdb
+*.ilk
+*.log
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.docstates
+*.vcxproj.user
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# vcpkg
+vcpkg_installed/
+
+# Qt
+*.qm
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# User data (CRITICAL: never commit test vaults)
+*.db
+*.sqlite
+*.vault
+test_vaults/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/

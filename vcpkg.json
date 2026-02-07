@@ -1,0 +1,11 @@
+{
+  "name": "bastionx",
+  "version": "0.1.0",
+  "dependencies": [
+    "qtbase",
+    "libsodium",
+    "sqlite3",
+    "gtest"
+  ],
+  "builtin-baseline": "fb87e2bb3fe69e16c224989acb5a61349166c782"
+}
