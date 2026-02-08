@@ -1,0 +1,239 @@
+#ifndef BASTIONX_UI_STYLESHEET_H
+#define BASTIONX_UI_STYLESHEET_H
+
+namespace bastionx {
+namespace ui {
+
+inline const char* const kStyleSheet = R"QSS(
+
+/* === Global === */
+QWidget {
+    background-color: #1a1a1a;
+    color: #d4d4d4;
+    font-family: "Fira Mono", "Consolas", "JetBrains Mono", monospace;
+    font-size: 13px;
+}
+
+QMainWindow {
+    background-color: #1a1a1a;
+}
+
+/* === Toolbar === */
+QToolBar {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #3a3a3a;
+    padding: 6px 12px;
+    spacing: 8px;
+}
+
+QToolBar QLabel#titleLabel {
+    color: #5f8a6e;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* === Buttons === */
+QPushButton {
+    background-color: #252525;
+    color: #d4d4d4;
+    border: 1px solid #3a3a3a;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+QPushButton:hover {
+    background-color: #303030;
+    border-color: #5f8a6e;
+}
+
+QPushButton:pressed {
+    background-color: #1a1a1a;
+}
+
+QPushButton:disabled {
+    color: #505050;
+    border-color: #2a2a2a;
+    background-color: #1e1e1e;
+}
+
+QPushButton#submitButton {
+    background-color: #2a3a2e;
+    border-color: #5f8a6e;
+    color: #5f8a6e;
+    font-size: 14px;
+    padding: 10px 24px;
+}
+
+QPushButton#submitButton:hover {
+    background-color: #354a3a;
+    color: #6ea07f;
+}
+
+QPushButton#submitButton:disabled {
+    background-color: #1e1e1e;
+    border-color: #2a2a2a;
+    color: #505050;
+}
+
+QPushButton#lockButton {
+    background-color: transparent;
+    border: 1px solid #3a3a3a;
+    color: #808080;
+    padding: 4px 12px;
+}
+
+QPushButton#lockButton:hover {
+    border-color: #a04040;
+    color: #a04040;
+}
+
+QPushButton#newNoteButton {
+    background-color: #252525;
+    border: 1px solid #3a3a3a;
+    color: #5f8a6e;
+    padding: 6px;
+    text-align: left;
+}
+
+QPushButton#newNoteButton:hover {
+    background-color: #303030;
+    border-color: #5f8a6e;
+}
+
+QPushButton#deleteButton {
+    background-color: transparent;
+    border: 1px solid #3a3a3a;
+    color: #a04040;
+    padding: 4px 12px;
+}
+
+QPushButton#deleteButton:hover {
+    border-color: #a04040;
+    background-color: #2a1a1a;
+}
+
+/* === Line Edits === */
+QLineEdit {
+    background-color: #252525;
+    color: #d4d4d4;
+    border: 1px solid #3a3a3a;
+    padding: 8px;
+    selection-background-color: #3a5a42;
+}
+
+QLineEdit:focus {
+    border-color: #5f8a6e;
+}
+
+QLineEdit#passwordInput {
+    font-size: 16px;
+    padding: 10px;
+}
+
+QLineEdit#titleInput {
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-bottom: 1px solid #3a3a3a;
+    background-color: #1a1a1a;
+    padding: 8px 4px;
+}
+
+QLineEdit#titleInput:focus {
+    border-bottom-color: #5f8a6e;
+}
+
+/* === Plain Text Edit === */
+QPlainTextEdit {
+    background-color: #1a1a1a;
+    color: #d4d4d4;
+    border: none;
+    padding: 8px;
+    selection-background-color: #3a5a42;
+    font-size: 14px;
+}
+
+/* === List Widget === */
+QListWidget {
+    background-color: #1a1a1a;
+    border: none;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 10px 8px;
+    border-bottom: 1px solid #252525;
+    color: #d4d4d4;
+}
+
+QListWidget::item:selected {
+    background-color: #252525;
+    color: #5f8a6e;
+    border-left: 2px solid #5f8a6e;
+}
+
+QListWidget::item:hover:!selected {
+    background-color: #202020;
+}
+
+/* === Splitter === */
+QSplitter::handle {
+    background-color: #3a3a3a;
+    width: 1px;
+}
+
+/* === Scrollbars === */
+QScrollBar:vertical {
+    background-color: #1a1a1a;
+    width: 8px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #3a3a3a;
+    min-height: 30px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #505050;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+QScrollBar:horizontal {
+    height: 0;
+}
+
+/* === Labels === */
+QLabel#errorLabel {
+    color: #a04040;
+    font-size: 12px;
+}
+
+QLabel#statusLabel {
+    color: #808080;
+    font-size: 11px;
+}
+
+/* === Message Box (delete confirmation) === */
+QMessageBox {
+    background-color: #1a1a1a;
+}
+
+QMessageBox QLabel {
+    color: #d4d4d4;
+}
+
+QMessageBox QPushButton {
+    min-width: 80px;
+}
+
+)QSS";
+
+}  // namespace ui
+}  // namespace bastionx
+
+#endif  // BASTIONX_UI_STYLESHEET_H
