@@ -16,6 +16,7 @@ endif()
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(unofficial-sodium CONFIG REQUIRED)
 find_package(SQLite3 REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # Compiler warnings
 if(MSVC)
@@ -30,8 +31,8 @@ endif()
 add_library(bastionx_core STATIC
     src/crypto/CryptoService.cpp
     src/crypto/SecureMemory.cpp
-    # src/vault/VaultService.cpp      # Phase 2
-    # src/storage/NotesRepository.cpp # Phase 2
+    src/vault/VaultService.cpp
+    src/storage/NotesRepository.cpp
 )
 
 target_include_directories(bastionx_core PUBLIC
@@ -41,6 +42,7 @@ target_include_directories(bastionx_core PUBLIC
 target_link_libraries(bastionx_core PUBLIC
     unofficial-sodium::sodium
     SQLite::SQLite3
+    nlohmann_json::nlohmann_json
 )
 
 # Executable (future - Phase 3)

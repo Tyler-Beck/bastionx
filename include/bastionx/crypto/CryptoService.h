@@ -51,6 +51,9 @@ public:
     /// Subkey context for settings encryption (future use)
     static constexpr uint64_t SUBKEY_SETTINGS = 2;
 
+    /// Subkey context for vault password verification
+    static constexpr uint64_t SUBKEY_VERIFY = 3;
+
     // === Data Structures ===
 
     /**

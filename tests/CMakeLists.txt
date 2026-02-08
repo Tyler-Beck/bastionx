@@ -5,6 +5,9 @@ add_executable(bastionx_tests
     test_main.cpp
     crypto/CryptoServiceTest.cpp
     crypto/SecureMemoryTest.cpp
+    vault/VaultServiceTest.cpp
+    storage/NotesRepositoryTest.cpp
+    integration/IntegrationTest.cpp
 )
 
 target_link_libraries(bastionx_tests PRIVATE

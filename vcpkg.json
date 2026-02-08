@@ -5,7 +5,8 @@
     "qtbase",
     "libsodium",
     "sqlite3",
-    "gtest"
+    "gtest",
+    "nlohmann-json"
   ],
   "builtin-baseline": "fb87e2bb3fe69e16c224989acb5a61349166c782"
 }
