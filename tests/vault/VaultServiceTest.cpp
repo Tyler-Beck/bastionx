@@ -229,7 +229,7 @@ TEST_F(VaultServiceTest, EmptyPasswordHandling) {
 // Test 12: Unicode password handling
 // ===================================================================
 TEST_F(VaultServiceTest, UnicodePasswordHandling) {
-    std::string unicode_password = u8"пароль123日本語";
+    std::string unicode_password = "\xd0\xbf\xd0\xb0\xd1\x80\xd0\xbe\xd0\xbb\xd1\x8c""123\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 
     VaultService vault(vault_path_);
     EXPECT_TRUE(vault.create(unicode_password));
@@ -239,5 +239,6 @@ TEST_F(VaultServiceTest, UnicodePasswordHandling) {
 
     // Wrong unicode password should fail
     vault.lock();
-    EXPECT_FALSE(vault.unlock(u8"другойпароль"));
+    std::string wrong_password = "\xd0\xb4\xd1\x80\xd1\x83\xd0\xb3\xd0\xbe\xd0\xb9\xd0\xbf\xd0\xb0\xd1\x80\xd0\xbe\xd0\xbb\xd1\x8c";
+    EXPECT_FALSE(vault.unlock(wrong_password));
 }

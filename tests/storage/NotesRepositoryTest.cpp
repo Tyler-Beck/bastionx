@@ -138,23 +138,23 @@ TEST_F(NotesRepositoryTest, ListNotesEmpty) {
 // ===================================================================
 TEST_F(NotesRepositoryTest, ListNotesOrder) {
     int64_t id1 = repo_->create_note(make_note("First", ""), subkey());
+    (void)repo_->create_note(make_note("Second", ""), subkey());
+    (void)repo_->create_note(make_note("Third", ""), subkey());
 
-    // Small delay to ensure different timestamps
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // Wait 1 second so update_note gets a different timestamp (seconds resolution)
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    int64_t id2 = repo_->create_note(make_note("Second", ""), subkey());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    int64_t id3 = repo_->create_note(make_note("Third", ""), subkey());
+    // Update the first note so it has the newest updated_at
+    auto first_note = repo_->read_note(id1, subkey());
+    ASSERT_TRUE(first_note.has_value());
+    first_note->body = "Updated body";
+    EXPECT_TRUE(repo_->update_note(*first_note, subkey()));
 
     auto summaries = repo_->list_notes(subkey());
     ASSERT_EQ(3, summaries.size());
 
-    // Most recent first (Third was created last)
-    EXPECT_EQ(id3, summaries[0].id);
-    EXPECT_EQ(id2, summaries[1].id);
-    EXPECT_EQ(id1, summaries[2].id);
+    // Most recent first (First was updated last, so it should be first)
+    EXPECT_EQ(id1, summaries[0].id);
 }
 
 // ===================================================================
@@ -254,20 +254,21 @@ TEST_F(NotesRepositoryTest, NoteWithEmptyFields) {
 // Test 13: Note with Unicode content
 // ===================================================================
 TEST_F(NotesRepositoryTest, NoteWithUnicodeContent) {
-    auto note = make_note(
-        u8"日本語タイトル",
-        u8"Содержимое на русском языке 🔐",
-        {u8"тег", u8"日本語"}
-    );
+    // UTF-8 encoded strings (Japanese title, Russian body, mixed tags)
+    std::string jp_title = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e\xe3\x82\xbf\xe3\x82\xa4\xe3\x83\x88\xe3\x83\xab";
+    std::string ru_body = "\xd0\xa1\xd0\xbe\xd0\xb4\xd0\xb5\xd1\x80\xd0\xb6\xd0\xb8\xd0\xbc\xd0\xbe\xd0\xb5 \xd0\xbd\xd0\xb0 \xd1\x80\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xbe\xd0\xbc \xd1\x8f\xd0\xb7\xd1\x8b\xd0\xba\xd0\xb5 \xf0\x9f\x94\x90";
+    std::string ru_tag = "\xd1\x82\xd0\xb5\xd0\xb3";
+    std::string jp_tag = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
+    auto note = make_note(jp_title, ru_body, {ru_tag, jp_tag});
     int64_t id = repo_->create_note(note, subkey());
 
     auto read = repo_->read_note(id, subkey());
     ASSERT_TRUE(read.has_value());
-    EXPECT_EQ(u8"日本語タイトル", read->title);
-    EXPECT_EQ(u8"Содержимое на русском языке 🔐", read->body);
+    EXPECT_EQ(jp_title, read->title);
+    EXPECT_EQ(ru_body, read->body);
     ASSERT_EQ(2, read->tags.size());
-    EXPECT_EQ(u8"тег", read->tags[0]);
-    EXPECT_EQ(u8"日本語", read->tags[1]);
+    EXPECT_EQ(ru_tag, read->tags[0]);
+    EXPECT_EQ(jp_tag, read->tags[1]);
 }
 
 // ===================================================================
