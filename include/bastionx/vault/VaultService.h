@@ -103,6 +103,46 @@ public:
     const crypto::SecureKey& notes_subkey() const;
 
     /**
+     * @brief Get the settings subkey
+     * @return Const reference to the settings subkey
+     * @throws std::runtime_error if vault is locked
+     */
+    const crypto::SecureKey& settings_subkey() const;
+
+    // === Settings Persistence ===
+
+    /**
+     * @brief Save encrypted settings JSON to the vault
+     * @param json_str JSON string from VaultSettings::to_json()
+     * @throws std::runtime_error if vault is locked or on SQLite errors
+     */
+    void save_settings(const std::string& json_str);
+
+    /**
+     * @brief Load and decrypt settings JSON from the vault
+     * @return JSON string, or empty string if no settings stored
+     * @throws std::runtime_error if vault is locked or on SQLite errors
+     */
+    std::string load_settings();
+
+    // === Password Change ===
+
+    /**
+     * @brief Change the vault master password
+     *
+     * Atomically re-encrypts all notes, verify token, and settings with new key
+     * material derived from the new password. Uses an EXCLUSIVE transaction so
+     * that on any failure the vault remains usable with the old password.
+     *
+     * @param current_password Current password (re-verified for safety)
+     * @param new_password New password
+     * @return true if password changed, false if current password wrong
+     * @throws std::runtime_error if vault is locked or on SQLite errors
+     */
+    bool change_password(const std::string& current_password,
+                         const std::string& new_password);
+
+    /**
      * @brief Get the vault file path
      */
     const std::string& vault_path() const;
@@ -115,6 +155,7 @@ private:
     std::optional<crypto::SecureKey> master_key_;
     std::optional<crypto::SecureKey> notes_subkey_;
     std::optional<crypto::SecureKey> verify_subkey_;
+    std::optional<crypto::SecureKey> settings_subkey_;
 
     // Cached vault metadata
     std::array<uint8_t, crypto::CryptoService::SALT_BYTES> salt_{};
@@ -125,6 +166,7 @@ private:
     void wipe_keys();
     bool verify_password();
     void create_schema(sqlite3* db);
+    void migrate_schema(sqlite3* db);
     void store_vault_meta(sqlite3* db);
     void store_verify_token(sqlite3* db);
     bool load_vault_meta(sqlite3* db);

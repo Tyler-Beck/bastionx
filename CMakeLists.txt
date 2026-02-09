@@ -35,6 +35,7 @@ add_library(bastionx_core STATIC
     src/crypto/CryptoService.cpp
     src/crypto/SecureMemory.cpp
     src/vault/VaultService.cpp
+    src/vault/VaultSettings.cpp
     src/storage/NotesRepository.cpp
 )
 
@@ -56,12 +57,16 @@ add_executable(bastionx
     src/ui/NotesPanel.cpp
     src/ui/NotesList.cpp
     src/ui/NoteEditor.cpp
+    src/ui/ClipboardGuard.cpp
+    src/ui/SettingsDialog.cpp
     # Headers with Q_OBJECT (needed for AUTOMOC)
     include/bastionx/ui/MainWindow.h
     include/bastionx/ui/UnlockScreen.h
     include/bastionx/ui/NotesPanel.h
     include/bastionx/ui/NotesList.h
     include/bastionx/ui/NoteEditor.h
+    include/bastionx/ui/ClipboardGuard.h
+    include/bastionx/ui/SettingsDialog.h
 )
 target_include_directories(bastionx PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -71,6 +76,9 @@ target_link_libraries(bastionx PRIVATE bastionx_core Qt6::Widgets)
 if(WIN32)
     set_target_properties(bastionx PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
+
+# Install target
+install(TARGETS bastionx RUNTIME DESTINATION bin)
 
 # Tests
 option(BUILD_TESTS "Build unit tests" ON)

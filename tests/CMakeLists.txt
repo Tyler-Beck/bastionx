@@ -6,6 +6,8 @@ add_executable(bastionx_tests
     crypto/CryptoServiceTest.cpp
     crypto/SecureMemoryTest.cpp
     vault/VaultServiceTest.cpp
+    vault/VaultSettingsTest.cpp
+    vault/PasswordChangeTest.cpp
     storage/NotesRepositoryTest.cpp
     integration/IntegrationTest.cpp
 )

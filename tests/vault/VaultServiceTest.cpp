@@ -242,3 +242,86 @@ TEST_F(VaultServiceTest, UnicodePasswordHandling) {
     std::string wrong_password = "\xd0\xb4\xd1\x80\xd1\x83\xd0\xb3\xd0\xbe\xd0\xb9\xd0\xbf\xd0\xb0\xd1\x80\xd0\xbe\xd0\xbb\xd1\x8c";
     EXPECT_FALSE(vault.unlock(wrong_password));
 }
+
+// ===================================================================
+// Test 13: Settings subkey accessible when unlocked
+// ===================================================================
+TEST_F(VaultServiceTest, SettingsSubkeyAccessible) {
+    VaultService vault(vault_path_);
+    vault.create("password");
+
+    EXPECT_NO_THROW(vault.settings_subkey());
+
+    vault.lock();
+    EXPECT_THROW(vault.settings_subkey(), std::runtime_error);
+}
+
+// ===================================================================
+// Test 14: Save and load settings round-trip
+// ===================================================================
+TEST_F(VaultServiceTest, SettingsSaveLoadRoundTrip) {
+    VaultService vault(vault_path_);
+    vault.create("password");
+
+    std::string json = R"({"auto_lock_minutes":10,"clipboard_clear_enabled":false,"clipboard_clear_seconds":60})";
+    vault.save_settings(json);
+
+    std::string loaded = vault.load_settings();
+    EXPECT_EQ(json, loaded);
+}
+
+// ===================================================================
+// Test 15: Settings persist across lock/unlock cycles
+// ===================================================================
+TEST_F(VaultServiceTest, SettingsPersistAcrossUnlock) {
+    std::string json = R"({"auto_lock_minutes":15,"clipboard_clear_enabled":true,"clipboard_clear_seconds":45})";
+
+    {
+        VaultService vault(vault_path_);
+        vault.create("password");
+        vault.save_settings(json);
+    }
+
+    // Reopen and unlock
+    VaultService vault(vault_path_);
+    vault.unlock("password");
+
+    std::string loaded = vault.load_settings();
+    EXPECT_EQ(json, loaded);
+}
+
+// ===================================================================
+// Test 16: Load settings returns empty when none stored
+// ===================================================================
+TEST_F(VaultServiceTest, LoadSettingsEmptyWhenNoneStored) {
+    VaultService vault(vault_path_);
+    vault.create("password");
+
+    std::string loaded = vault.load_settings();
+    EXPECT_TRUE(loaded.empty());
+}
+
+// ===================================================================
+// Test 17: Save settings throws when locked
+// ===================================================================
+TEST_F(VaultServiceTest, SaveSettingsThrowsWhenLocked) {
+    VaultService vault(vault_path_);
+    vault.create("password");
+    vault.lock();
+
+    EXPECT_THROW(vault.save_settings("{}"), std::runtime_error);
+}
+
+// ===================================================================
+// Test 18: Settings overwritten on re-save
+// ===================================================================
+TEST_F(VaultServiceTest, SettingsOverwrittenOnResave) {
+    VaultService vault(vault_path_);
+    vault.create("password");
+
+    vault.save_settings(R"({"auto_lock_minutes":5})");
+    vault.save_settings(R"({"auto_lock_minutes":20})");
+
+    std::string loaded = vault.load_settings();
+    EXPECT_EQ(R"({"auto_lock_minutes":20})", loaded);
+}

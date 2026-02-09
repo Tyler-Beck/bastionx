@@ -231,6 +231,103 @@ QMessageBox QPushButton {
     min-width: 80px;
 }
 
+/* === Dialog === */
+QDialog {
+    background-color: #1a1a1a;
+}
+
+/* === Group Box === */
+QGroupBox {
+    border: 1px solid #3a3a3a;
+    margin-top: 12px;
+    padding: 16px 12px 8px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #5f8a6e;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 4px;
+}
+
+/* === Spin Box === */
+QSpinBox {
+    background-color: #252525;
+    color: #d4d4d4;
+    border: 1px solid #3a3a3a;
+    padding: 6px 8px;
+    min-width: 80px;
+}
+
+QSpinBox:focus {
+    border-color: #5f8a6e;
+}
+
+QSpinBox::up-button, QSpinBox::down-button {
+    background-color: #303030;
+    border: none;
+    width: 16px;
+}
+
+QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+    background-color: #3a3a3a;
+}
+
+/* === Check Box === */
+QCheckBox {
+    color: #d4d4d4;
+    spacing: 8px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #3a3a3a;
+    background-color: #252525;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #5f8a6e;
+    border-color: #5f8a6e;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #5f8a6e;
+}
+
+/* === Change Password Button === */
+QPushButton#changePasswordButton {
+    background-color: #2a2a3a;
+    border-color: #5a5a8a;
+    color: #8a8abf;
+    padding: 8px 16px;
+}
+
+QPushButton#changePasswordButton:hover {
+    background-color: #35354a;
+    color: #9a9ad0;
+}
+
+QPushButton#changePasswordButton:disabled {
+    background-color: #1e1e1e;
+    border-color: #2a2a2a;
+    color: #505050;
+}
+
+/* === Cancel Button === */
+QPushButton#cancelButton {
+    background-color: transparent;
+    border: 1px solid #3a3a3a;
+    color: #808080;
+}
+
+QPushButton#cancelButton:hover {
+    border-color: #505050;
+    color: #a0a0a0;
+}
+
 )QSS";
 
 }  // namespace ui
