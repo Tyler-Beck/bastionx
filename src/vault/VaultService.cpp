@@ -1,5 +1,6 @@
 #include "bastionx/vault/VaultService.h"
 #include <filesystem>
+#include <fstream>
 #include <stdexcept>
 #include <cstring>
 #include <ctime>
@@ -9,17 +10,30 @@ namespace vault {
 
 namespace fs = std::filesystem;
 
+// Helper to execute a simple SQL statement (forward declaration for ScopedDb)
+static void exec_sql(sqlite3* db, const std::string& sql);
+
 // === RAII wrapper for sqlite3* ===
 
 class ScopedDb {
 public:
-    explicit ScopedDb(const std::string& path) : db_(nullptr) {
+    explicit ScopedDb(const std::string& path, const crypto::SecureKey* db_key = nullptr) : db_(nullptr) {
         int rc = sqlite3_open(path.c_str(), &db_);
         if (rc != SQLITE_OK) {
             std::string err = db_ ? sqlite3_errmsg(db_) : "unknown error";
             if (db_) sqlite3_close(db_);
             db_ = nullptr;
             throw std::runtime_error("Failed to open database: " + err);
+        }
+        if (db_key) {
+            rc = sqlite3_key(db_, db_key->data(), static_cast<int>(db_key->size()));
+            if (rc != SQLITE_OK) {
+                std::string err = sqlite3_errmsg(db_);
+                sqlite3_close(db_);
+                db_ = nullptr;
+                throw std::runtime_error("Failed to set encryption key: " + err);
+            }
+            exec_sql(db_, "PRAGMA cipher_memory_security = ON;");
         }
     }
 
@@ -92,10 +106,17 @@ bool VaultService::create(const std::string& password) {
     // Derive master key (generates random salt)
     auto derived = crypto::CryptoService::derive_master_key(password);
 
-    // Open SQLite and create schema
-    ScopedDb db(vault_path_);
+    // Write salt sidecar file (must happen before DB open)
+    write_salt_file(derived.salt);
 
-    // Enable WAL mode for better performance
+    // Derive database encryption subkey
+    auto db_key = crypto::CryptoService::derive_subkey(
+        derived.master_key, crypto::CryptoService::SUBKEY_DATABASE);
+
+    // Open SQLite with encryption — DB is encrypted from birth
+    ScopedDb db(vault_path_, &db_key);
+
+    // Enable WAL mode (after keying)
     exec_sql(db.get(), "PRAGMA journal_mode=WAL;");
 
     create_schema(db.get());
@@ -108,6 +129,9 @@ bool VaultService::create(const std::string& password) {
 
     // Cache master key
     master_key_.emplace(std::move(derived.master_key));
+
+    // Cache database subkey
+    db_subkey_.emplace(std::move(db_key));
 
     // Derive and cache verification subkey, store token
     verify_subkey_.emplace(
@@ -135,18 +159,41 @@ bool VaultService::unlock(const std::string& password) {
         return true;  // Already unlocked
     }
 
-    // Open DB and load metadata
-    ScopedDb db(vault_path_);
+    // Step 1: Read salt from sidecar file (must happen before DB open)
+    std::array<uint8_t, crypto::CryptoService::SALT_BYTES> file_salt{};
+    bool has_salt_file = read_salt_file(file_salt);
 
-    if (!load_vault_meta(db.get())) {
+    if (!has_salt_file) {
+        // No salt sidecar — attempt migration from unencrypted (pre-Phase 5) vault
+        return migrate_and_unlock(password);
+    }
+    salt_ = file_salt;
+
+    // Step 2: Derive master key and database subkey using sidecar salt
+    auto derived = crypto::CryptoService::derive_master_key(password, salt_);
+
+    auto db_key = crypto::CryptoService::derive_subkey(
+        derived.master_key, crypto::CryptoService::SUBKEY_DATABASE);
+
+    // Step 3: Open encrypted DB and validate key
+    // Wrong password → wrong db_key → SQLCipher throws on first query
+    std::unique_ptr<ScopedDb> db_ptr;
+    try {
+        db_ptr = std::make_unique<ScopedDb>(vault_path_, &db_key);
+        if (!load_vault_meta(db_ptr->get())) {
+            state_ = VaultState::kLocked;
+            return false;
+        }
+    } catch (const std::runtime_error&) {
+        // Wrong encryption key — "file is not a database"
+        state_ = VaultState::kLocked;
         return false;
     }
-
-    // Derive master key using loaded salt
-    auto derived = crypto::CryptoService::derive_master_key(password, salt_);
+    auto& db = *db_ptr;
 
     // Cache master key temporarily for verification
     master_key_.emplace(std::move(derived.master_key));
+    db_subkey_.emplace(std::move(db_key));
 
     // Derive verification subkey
     verify_subkey_.emplace(
@@ -226,6 +273,13 @@ const crypto::SecureKey& VaultService::settings_subkey() const {
     return *settings_subkey_;
 }
 
+const crypto::SecureKey& VaultService::db_subkey() const {
+    if (state_ != VaultState::kUnlocked || !db_subkey_.has_value()) {
+        throw std::runtime_error("Vault is locked");
+    }
+    return *db_subkey_;
+}
+
 void VaultService::save_settings(const std::string& json_str) {
     if (state_ != VaultState::kUnlocked) {
         throw std::runtime_error("Vault is locked");
@@ -234,7 +288,7 @@ void VaultService::save_settings(const std::string& json_str) {
     std::vector<uint8_t> plaintext(json_str.begin(), json_str.end());
     auto encrypted = crypto::CryptoService::encrypt(plaintext, *settings_subkey_, {});
 
-    ScopedDb db(vault_path_);
+    ScopedDb db(vault_path_, &*db_subkey_);
 
     // Ensure vault_settings table exists (migration for pre-Phase 4 vaults)
     migrate_schema(db.get());
@@ -262,7 +316,7 @@ std::string VaultService::load_settings() {
         throw std::runtime_error("Vault is locked");
     }
 
-    ScopedDb db(vault_path_);
+    ScopedDb db(vault_path_, &*db_subkey_);
 
     // Ensure vault_settings table exists
     migrate_schema(db.get());
@@ -317,7 +371,7 @@ bool VaultService::change_password(const std::string& current_password,
         current_derived.master_key, crypto::CryptoService::SUBKEY_VERIFY);
 
     // Check that the re-derived verify subkey matches by trying to decrypt the token
-    ScopedDb db(vault_path_);
+    ScopedDb db(vault_path_, &*db_subkey_);
 
     std::array<uint8_t, crypto::CryptoService::NONCE_BYTES> verify_nonce{};
     std::vector<uint8_t> verify_ct;
@@ -343,6 +397,8 @@ bool VaultService::change_password(const std::string& current_password,
         new_derived.master_key, crypto::CryptoService::SUBKEY_VERIFY);
     auto new_settings_subkey = crypto::CryptoService::derive_subkey(
         new_derived.master_key, crypto::CryptoService::SUBKEY_SETTINGS);
+    auto new_db_subkey = crypto::CryptoService::derive_subkey(
+        new_derived.master_key, crypto::CryptoService::SUBKEY_DATABASE);
 
     // Step 4: BEGIN EXCLUSIVE TRANSACTION
     exec_sql(db.get(), "BEGIN EXCLUSIVE TRANSACTION;");
@@ -518,7 +574,18 @@ bool VaultService::change_password(const std::string& current_password,
         throw;
     }
 
-    // Step 10: Update in-memory keys only after commit succeeds
+    // Step 10: Re-key the database file with the new encryption key
+    int rekey_rc = sqlite3_rekey(db.get(), new_db_subkey.data(),
+                                 static_cast<int>(new_db_subkey.size()));
+    if (rekey_rc != SQLITE_OK) {
+        throw std::runtime_error(
+            "Failed to re-key database: " + std::string(sqlite3_errmsg(db.get())));
+    }
+
+    // Step 11: Update salt sidecar file
+    write_salt_file(new_derived.salt);
+
+    // Step 12: Update in-memory keys only after everything succeeds
     salt_ = new_derived.salt;
     kdf_opslimit_ = crypto_pwhash_OPSLIMIT_MODERATE;
     kdf_memlimit_ = crypto_pwhash_MEMLIMIT_MODERATE;
@@ -527,6 +594,7 @@ bool VaultService::change_password(const std::string& current_password,
     notes_subkey_.emplace(std::move(new_notes_subkey));
     verify_subkey_.emplace(std::move(new_verify_subkey));
     settings_subkey_.emplace(std::move(new_settings_subkey));
+    db_subkey_.emplace(std::move(new_db_subkey));
 
     return true;
 }
@@ -543,6 +611,7 @@ void VaultService::wipe_keys() {
     notes_subkey_.reset();
     verify_subkey_.reset();
     settings_subkey_.reset();
+    db_subkey_.reset();
 }
 
 void VaultService::create_schema(sqlite3* db) {
@@ -684,6 +753,141 @@ bool VaultService::load_verify_token(
         static_cast<const uint8_t*>(ct_blob),
         static_cast<const uint8_t*>(ct_blob) + ct_size);
 
+    return true;
+}
+
+// === Salt Sidecar File Helpers ===
+
+std::string VaultService::salt_path(const std::string& vault_path) {
+    auto p = fs::path(vault_path);
+    return (p.parent_path() / (p.stem().string() + ".salt")).string();
+}
+
+void VaultService::write_salt_file(const std::array<uint8_t, crypto::CryptoService::SALT_BYTES>& salt) {
+    std::ofstream f(salt_path(vault_path_), std::ios::binary | std::ios::trunc);
+    if (!f) {
+        throw std::runtime_error("Failed to write salt sidecar file");
+    }
+    f.write(reinterpret_cast<const char*>(salt.data()), salt.size());
+}
+
+bool VaultService::read_salt_file(std::array<uint8_t, crypto::CryptoService::SALT_BYTES>& salt) {
+    std::ifstream f(salt_path(vault_path_), std::ios::binary);
+    if (!f) return false;
+    f.read(reinterpret_cast<char*>(salt.data()), salt.size());
+    return f.gcount() == static_cast<std::streamsize>(salt.size());
+}
+
+// === Migration from Unencrypted (pre-Phase 5) Vaults ===
+
+bool VaultService::migrate_and_unlock(const std::string& password) {
+    std::optional<crypto::SecureKey> db_key;
+    auto encrypted_path = vault_path_ + ".encrypted";
+    auto backup_path = vault_path_ + ".bak";
+
+    // Phase 1: Open plaintext DB, verify password, export encrypted copy
+    // Nested scope ensures ScopedDb closes before file swap operations
+    {
+        ScopedDb plaintext_db(vault_path_);
+
+        if (!load_vault_meta(plaintext_db.get())) {
+            state_ = VaultState::kLocked;
+            return false;
+        }
+
+        // Derive master key using salt from the plaintext vault_meta
+        auto derived = crypto::CryptoService::derive_master_key(password, salt_);
+        master_key_.emplace(std::move(derived.master_key));
+
+        // Verify password via the verify token
+        verify_subkey_.emplace(
+            crypto::CryptoService::derive_subkey(*master_key_, crypto::CryptoService::SUBKEY_VERIFY));
+
+        std::array<uint8_t, crypto::CryptoService::NONCE_BYTES> nonce{};
+        std::vector<uint8_t> ciphertext;
+        if (!load_verify_token(plaintext_db.get(), nonce, ciphertext)) {
+            wipe_keys();
+            return false;
+        }
+
+        crypto::CryptoService::EncryptedData token{std::move(ciphertext), nonce};
+        auto pt = crypto::CryptoService::decrypt(token, *verify_subkey_, {});
+
+        if (!pt.has_value() ||
+            pt->size() != VERIFY_MARKER_SIZE ||
+            std::memcmp(pt->data(), VERIFY_MARKER, VERIFY_MARKER_SIZE) != 0) {
+            wipe_keys();
+            state_ = VaultState::kLocked;
+            return false;
+        }
+
+        // Derive database encryption subkey
+        db_key.emplace(crypto::CryptoService::derive_subkey(
+            *master_key_, crypto::CryptoService::SUBKEY_DATABASE));
+
+        // Build hex key string for ATTACH KEY
+        std::string hex_key = "x'";
+        for (size_t i = 0; i < db_key->size(); i++) {
+            char hex[3];
+            snprintf(hex, sizeof(hex), "%02x", (*db_key)[i]);
+            hex_key += hex;
+        }
+        hex_key += "'";
+
+        // Remove any pre-existing encrypted file from a previous failed migration
+        std::error_code ec;
+        fs::remove(encrypted_path, ec);
+
+        // Export all data to encrypted copy via sqlcipher_export
+        exec_sql(plaintext_db.get(),
+            "ATTACH DATABASE '" + encrypted_path + "' AS encrypted KEY " + hex_key + ";");
+        exec_sql(plaintext_db.get(), "SELECT sqlcipher_export('encrypted');");
+        exec_sql(plaintext_db.get(), "DETACH DATABASE encrypted;");
+
+    } // plaintext_db closes here — file handle released on Windows
+
+    // Phase 2: Swap files (plaintext → backup, encrypted → vault.db)
+    std::error_code ec;
+
+    // Remove stale WAL/SHM files from the plaintext DB
+    fs::remove(vault_path_ + "-wal", ec);
+    fs::remove(vault_path_ + "-shm", ec);
+
+    fs::rename(vault_path_, backup_path, ec);
+    if (ec) {
+        fs::remove(encrypted_path, ec);
+        wipe_keys();
+        return false;
+    }
+
+    fs::rename(encrypted_path, vault_path_, ec);
+    if (ec) {
+        // Restore backup
+        fs::rename(backup_path, vault_path_, ec);
+        wipe_keys();
+        return false;
+    }
+
+    // Phase 3: Write salt sidecar file
+    write_salt_file(salt_);
+
+    // Phase 4: Finish unlock — derive remaining subkeys
+    db_subkey_.emplace(std::move(*db_key));
+    notes_subkey_.emplace(
+        crypto::CryptoService::derive_subkey(*master_key_, crypto::CryptoService::SUBKEY_NOTES));
+    settings_subkey_.emplace(
+        crypto::CryptoService::derive_subkey(*master_key_, crypto::CryptoService::SUBKEY_SETTINGS));
+
+    // Verify the encrypted DB opens correctly and migrate schema
+    {
+        ScopedDb enc_db(vault_path_, &*db_subkey_);
+        migrate_schema(enc_db.get());
+    }
+
+    // Clean up plaintext backup
+    fs::remove(backup_path, ec);
+
+    state_ = VaultState::kUnlocked;
     return true;
 }
 

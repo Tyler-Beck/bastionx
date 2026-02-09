@@ -3,7 +3,7 @@
 
 #include "bastionx/crypto/CryptoService.h"
 #include "bastionx/crypto/SecureMemory.h"
-#include <sqlite3.h>
+#include <sqlcipher/sqlite3.h>
 #include <string>
 #include <array>
 #include <optional>
@@ -109,6 +109,13 @@ public:
      */
     const crypto::SecureKey& settings_subkey() const;
 
+    /**
+     * @brief Get the database encryption subkey (SQLCipher)
+     * @return Const reference to the database subkey
+     * @throws std::runtime_error if vault is locked
+     */
+    const crypto::SecureKey& db_subkey() const;
+
     // === Settings Persistence ===
 
     /**
@@ -156,6 +163,7 @@ private:
     std::optional<crypto::SecureKey> notes_subkey_;
     std::optional<crypto::SecureKey> verify_subkey_;
     std::optional<crypto::SecureKey> settings_subkey_;
+    std::optional<crypto::SecureKey> db_subkey_;
 
     // Cached vault metadata
     std::array<uint8_t, crypto::CryptoService::SALT_BYTES> salt_{};
@@ -173,6 +181,14 @@ private:
     bool load_verify_token(sqlite3* db,
                            std::array<uint8_t, crypto::CryptoService::NONCE_BYTES>& nonce,
                            std::vector<uint8_t>& ciphertext);
+
+    // Salt sidecar file helpers
+    static std::string salt_path(const std::string& vault_path);
+    void write_salt_file(const std::array<uint8_t, crypto::CryptoService::SALT_BYTES>& salt);
+    bool read_salt_file(std::array<uint8_t, crypto::CryptoService::SALT_BYTES>& salt);
+
+    // Migration from unencrypted (pre-Phase 5) vaults
+    bool migrate_and_unlock(const std::string& password);
 };
 
 }  // namespace vault

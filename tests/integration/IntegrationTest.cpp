@@ -49,7 +49,7 @@ TEST_F(IntegrationTest, FullLifecycle) {
     ASSERT_TRUE(vault.create("my_password"));
 
     // Open repository
-    NotesRepository repo(vault_path_);
+    NotesRepository repo(vault_path_, &vault.db_subkey());
 
     // Create notes
     Note n1;
@@ -112,7 +112,7 @@ TEST_F(IntegrationTest, FullLifecycle) {
     EXPECT_TRUE(vault.unlock("my_password"));
 
     // Reopen repo and verify data persisted
-    NotesRepository repo2(vault_path_);
+    NotesRepository repo2(vault_path_, &vault.db_subkey());
     summaries = repo2.list_notes(vault.notes_subkey());
     EXPECT_EQ(2, summaries.size());
 
@@ -132,7 +132,7 @@ TEST_F(IntegrationTest, PersistenceAcrossRestarts) {
         VaultService vault(vault_path_);
         vault.create("persistent_password");
 
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         Note n;
         n.title = "Persistent Note";
         n.body = "This should survive a restart";
@@ -146,7 +146,7 @@ TEST_F(IntegrationTest, PersistenceAcrossRestarts) {
         VaultService vault(vault_path_);
         EXPECT_TRUE(vault.unlock("persistent_password"));
 
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         auto note = repo.read_note(saved_id, vault.notes_subkey());
         ASSERT_TRUE(note.has_value());
         EXPECT_EQ("Persistent Note", note->title);
@@ -165,7 +165,7 @@ TEST_F(IntegrationTest, WrongPasswordCannotReadNotes) {
         VaultService vault(vault_path_);
         vault.create("correct");
 
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         repo.create_note(Note{0, "Secret", "Top secret content", {}, 0, 0}, vault.notes_subkey());
     }
 
@@ -190,7 +190,7 @@ TEST_F(IntegrationTest, EmptyVaultUnlockCycle) {
     EXPECT_TRUE(vault.unlock("password"));
 
     // List notes (should be empty)
-    NotesRepository repo(vault_path_);
+    NotesRepository repo(vault_path_, &vault.db_subkey());
     auto summaries = repo.list_notes(vault.notes_subkey());
     EXPECT_TRUE(summaries.empty());
 
@@ -206,7 +206,7 @@ TEST_F(IntegrationTest, EmptyVaultUnlockCycle) {
     vault.lock();
     EXPECT_TRUE(vault.unlock("password"));
 
-    NotesRepository repo2(vault_path_);
+    NotesRepository repo2(vault_path_, &vault.db_subkey());
     summaries = repo2.list_notes(vault.notes_subkey());
     ASSERT_EQ(1, summaries.size());
     EXPECT_EQ("After Unlock", summaries[0].title);

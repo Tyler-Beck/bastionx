@@ -42,8 +42,8 @@ protected:
         vault_ = std::make_unique<VaultService>(vault_path_);
         vault_->create("test_password");
 
-        // Open repository
-        repo_ = std::make_unique<NotesRepository>(vault_path_);
+        // Open repository with database encryption key
+        repo_ = std::make_unique<NotesRepository>(vault_path_, &vault_->db_subkey());
     }
 
     void TearDown() override {
@@ -294,9 +294,10 @@ TEST_F(NotesRepositoryTest, FreshNonceOnUpdate) {
     auto note = make_note("Original", "Body");
     int64_t id = repo_->create_note(note, subkey());
 
-    // Read original nonce from DB directly
+    // Read original nonce from DB directly (must key with SQLCipher)
     sqlite3* db = nullptr;
     sqlite3_open(vault_path_.c_str(), &db);
+    sqlite3_key(db, vault_->db_subkey().data(), static_cast<int>(vault_->db_subkey().size()));
 
     auto get_nonce = [&](int64_t note_id) -> std::vector<uint8_t> {
         sqlite3_stmt* stmt = nullptr;

@@ -54,6 +54,9 @@ public:
     /// Subkey context for vault password verification
     static constexpr uint64_t SUBKEY_VERIFY = 3;
 
+    /// Subkey context for full-database encryption (SQLCipher)
+    static constexpr uint64_t SUBKEY_DATABASE = 4;
+
     // === Data Structures ===
 
     /**

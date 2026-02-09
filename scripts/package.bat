@@ -35,7 +35,7 @@ copy "%BUILD_DIR%\%CONFIG%\bastionx.exe" "%DIST_DIR%\" >nul
 
 REM Copy vcpkg runtime DLLs (release)
 copy "%VCPKG_BIN%\libsodium.dll" "%DIST_DIR%\" >nul 2>&1
-copy "%VCPKG_BIN%\sqlite3.dll" "%DIST_DIR%\" >nul 2>&1
+copy "%VCPKG_BIN%\sqlcipher.dll" "%DIST_DIR%\" >nul 2>&1
 
 REM Run windeployqt to gather Qt DLLs and plugins
 echo === Running windeployqt ===

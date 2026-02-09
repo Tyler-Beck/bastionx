@@ -90,7 +90,7 @@ void MainWindow::showUnlockScreen() {
 }
 
 void MainWindow::showNotesPanel() {
-    repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path());
+    repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path(), &vault_->db_subkey());
     notes_panel_->loadNotes(repo_.get(), &vault_->notes_subkey());
     stack_->setCurrentIndex(1);
     lock_button_->show();
@@ -199,14 +199,14 @@ void MainWindow::onPasswordChangeRequested(const QString& current_pw,
     if (ok) {
         QMessageBox::information(this, "Password Changed",
                                  "Your master password has been changed successfully.");
-        // Reopen repo with new subkey
-        repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path());
+        // Reopen repo with new subkey (db_subkey also changed)
+        repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path(), &vault_->db_subkey());
         notes_panel_->loadNotes(repo_.get(), &vault_->notes_subkey());
     } else {
         QMessageBox::warning(this, "Password Change Failed",
                              "Current password is incorrect.");
         // Reopen repo with existing subkey
-        repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path());
+        repo_ = std::make_unique<storage::NotesRepository>(vault_->vault_path(), &vault_->db_subkey());
         notes_panel_->loadNotes(repo_.get(), &vault_->notes_subkey());
     }
 }

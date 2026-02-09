@@ -18,7 +18,7 @@ endif()
 # Find dependencies
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(unofficial-sodium CONFIG REQUIRED)
-find_package(SQLite3 REQUIRED)
+find_package(sqlcipher CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 # Compiler warnings
@@ -43,9 +43,12 @@ target_include_directories(bastionx_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# SQLCipher requires SQLITE_HAS_CODEC for sqlite3_key/sqlite3_rekey declarations
+target_compile_definitions(bastionx_core PUBLIC SQLITE_HAS_CODEC)
+
 target_link_libraries(bastionx_core PUBLIC
     unofficial-sodium::sodium
-    SQLite::SQLite3
+    sqlcipher::sqlcipher
     nlohmann_json::nlohmann_json
 )
 

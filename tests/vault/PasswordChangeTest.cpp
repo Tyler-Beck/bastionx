@@ -90,7 +90,7 @@ TEST_F(PasswordChangeTest, NotesSurvivePasswordChange) {
 
     // Create some notes
     {
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         Note n1;
         n1.title = "Secret Note";
         n1.body = "This is sensitive data";
@@ -107,7 +107,7 @@ TEST_F(PasswordChangeTest, NotesSurvivePasswordChange) {
 
     // Verify notes are readable with new key
     {
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         auto summaries = repo.list_notes(vault.notes_subkey());
         ASSERT_EQ(summaries.size(), 2u);
 
@@ -123,7 +123,7 @@ TEST_F(PasswordChangeTest, NotesSurvivePasswordChange) {
     vault.unlock("new_pw");
 
     {
-        NotesRepository repo(vault_path_);
+        NotesRepository repo(vault_path_, &vault.db_subkey());
         auto summaries = repo.list_notes(vault.notes_subkey());
         ASSERT_EQ(summaries.size(), 2u);
 

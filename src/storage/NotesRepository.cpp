@@ -47,7 +47,7 @@ static void exec_sql(sqlite3* db, const std::string& sql) {
 
 // === NotesRepository Implementation ===
 
-NotesRepository::NotesRepository(const std::string& db_path)
+NotesRepository::NotesRepository(const std::string& db_path, const crypto::SecureKey* db_key)
     : db_(nullptr), db_path_(db_path) {
     int rc = sqlite3_open(db_path.c_str(), &db_);
     if (rc != SQLITE_OK) {
@@ -57,7 +57,19 @@ NotesRepository::NotesRepository(const std::string& db_path)
         throw std::runtime_error("Failed to open database: " + err);
     }
 
-    // Enable WAL mode
+    // Set SQLCipher encryption key if provided
+    if (db_key) {
+        rc = sqlite3_key(db_, db_key->data(), static_cast<int>(db_key->size()));
+        if (rc != SQLITE_OK) {
+            std::string err = sqlite3_errmsg(db_);
+            sqlite3_close(db_);
+            db_ = nullptr;
+            throw std::runtime_error("Failed to set encryption key: " + err);
+        }
+        exec_sql(db_, "PRAGMA cipher_memory_security = ON;");
+    }
+
+    // Enable WAL mode (after keying)
     exec_sql(db_, "PRAGMA journal_mode=WAL;");
 }
 

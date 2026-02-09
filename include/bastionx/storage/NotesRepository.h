@@ -3,7 +3,7 @@
 
 #include "bastionx/crypto/CryptoService.h"
 #include "bastionx/crypto/SecureMemory.h"
-#include <sqlite3.h>
+#include <sqlcipher/sqlite3.h>
 #include <string>
 #include <vector>
 #include <optional>
@@ -50,9 +50,11 @@ public:
     /**
      * @brief Open an existing vault database for note operations
      * @param db_path Path to the SQLite vault database (must already have schema)
+     * @param db_key Optional SQLCipher encryption key (nullptr for unencrypted)
      * @throws std::runtime_error if database cannot be opened
      */
-    explicit NotesRepository(const std::string& db_path);
+    explicit NotesRepository(const std::string& db_path,
+                             const crypto::SecureKey* db_key = nullptr);
     ~NotesRepository();
 
     // Non-copyable (owns sqlite3* handle)
