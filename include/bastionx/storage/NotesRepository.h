@@ -92,6 +92,15 @@ public:
     std::vector<NoteSummary> list_notes(const crypto::SecureKey& subkey);
 
     /**
+     * @brief Search all notes (decrypts in memory, case-insensitive match on title/body/tags)
+     * @param subkey Notes subkey from VaultService
+     * @param query Search string (min 2 chars; shorter returns empty)
+     * @return Matching NoteSummary vector sorted by updated_at DESC
+     */
+    std::vector<NoteSummary> search_notes(const crypto::SecureKey& subkey,
+                                           const std::string& query);
+
+    /**
      * @brief Update an existing note (re-encrypts with fresh nonce)
      * @param note Note with id set and updated fields
      * @param subkey Notes subkey from VaultService

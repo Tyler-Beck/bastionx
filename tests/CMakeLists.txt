@@ -10,6 +10,7 @@ add_executable(bastionx_tests
     vault/PasswordChangeTest.cpp
     vault/SQLCipherTest.cpp
     storage/NotesRepositoryTest.cpp
+    storage/SearchTest.cpp
     integration/IntegrationTest.cpp
 )
 

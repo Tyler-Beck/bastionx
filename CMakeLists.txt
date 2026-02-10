@@ -67,6 +67,9 @@ add_executable(bastionx
     src/ui/TabBar.cpp
     src/ui/StatusBar.cpp
     src/ui/FormattingToolbar.cpp
+    src/ui/SearchPanel.cpp
+    src/ui/TagsWidget.cpp
+    src/ui/FindBar.cpp
     # Headers with Q_OBJECT (needed for AUTOMOC)
     include/bastionx/ui/MainWindow.h
     include/bastionx/ui/UnlockScreen.h
@@ -80,6 +83,9 @@ add_executable(bastionx
     include/bastionx/ui/TabBar.h
     include/bastionx/ui/StatusBar.h
     include/bastionx/ui/FormattingToolbar.h
+    include/bastionx/ui/SearchPanel.h
+    include/bastionx/ui/TagsWidget.h
+    include/bastionx/ui/FindBar.h
 )
 target_include_directories(bastionx PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include

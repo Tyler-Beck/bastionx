@@ -15,6 +15,8 @@ namespace bastionx {
 namespace ui {
 
 class FormattingToolbar;
+class TagsWidget;
+class FindBar;
 
 class NoteEditor : public QWidget {
     Q_OBJECT
@@ -31,11 +33,17 @@ public:
 
     QString currentTitle() const;
     QString currentBody() const;
+    std::vector<std::string> currentTags() const;
 
     void setTitle(const QString& title);
+    void setTags(const std::vector<std::string>& tags);
     void setDocument(QTextDocument* doc);
     QTextDocument* document() const;
-    void switchToNote(int64_t note_id, const QString& title);
+    void switchToNote(int64_t note_id, const QString& title,
+                      const std::vector<std::string>& tags);
+
+    void showFindBar();
+    void showReplaceBar();
 
 signals:
     void noteSaved();
@@ -53,7 +61,9 @@ private:
     void setEditorEnabled(bool enabled);
 
     QLineEdit*          title_input_ = nullptr;
+    TagsWidget*         tags_widget_ = nullptr;
     FormattingToolbar*  formatting_toolbar_ = nullptr;
+    FindBar*            find_bar_ = nullptr;
     QTextEdit*          body_input_ = nullptr;
     QPushButton*        delete_button_ = nullptr;
     QTimer*             autosave_timer_ = nullptr;

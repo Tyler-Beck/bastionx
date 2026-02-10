@@ -39,6 +39,7 @@ private slots:
     void onNoteSaved();
     void onNoteDeleted(int64_t note_id);
     void onEditorContentChanged();
+    void onSearchRequested(const QString& query);
 
 private:
     void refreshList();

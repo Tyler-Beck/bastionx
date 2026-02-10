@@ -9,6 +9,7 @@ namespace bastionx {
 namespace ui {
 
 class NotesList;
+class SearchPanel;
 
 class Sidebar : public QWidget {
     Q_OBJECT
@@ -18,19 +19,18 @@ public:
 
     void setActivity(ActivityBar::Activity activity);
     NotesList* notesList() const { return notes_list_; }
-
-    // Search panel slot for future 6C integration
-    QWidget* searchPlaceholder() const { return search_placeholder_; }
+    SearchPanel* searchPanel() const { return search_panel_; }
 
 signals:
     void noteSelected(int64_t note_id);
     void newNoteRequested();
     void settingsRequested();
+    void searchRequested(const QString& query);
 
 private:
     QStackedWidget* stack_ = nullptr;
     NotesList* notes_list_ = nullptr;
-    QWidget* search_placeholder_ = nullptr;
+    SearchPanel* search_panel_ = nullptr;
 
     static constexpr int kMinWidth = 220;
     static constexpr int kMaxWidth = 400;

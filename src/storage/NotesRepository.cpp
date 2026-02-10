@@ -265,6 +265,102 @@ std::vector<NoteSummary> NotesRepository::list_notes(const crypto::SecureKey& su
     return summaries;
 }
 
+std::vector<NoteSummary> NotesRepository::search_notes(
+    const crypto::SecureKey& subkey, const std::string& query)
+{
+    if (query.size() < 2) return {};
+
+    // Build lowercase query for case-insensitive matching
+    auto to_lower = [](const std::string& s) {
+        std::string r;
+        r.reserve(s.size());
+        for (char c : s) r += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        return r;
+    };
+
+    std::string lower_query = to_lower(query);
+    std::vector<NoteSummary> results;
+
+    ScopedStmt stmt(db_,
+        "SELECT id, nonce, ciphertext, updated_at FROM notes ORDER BY updated_at DESC");
+
+    while (sqlite3_step(stmt.get()) == SQLITE_ROW) {
+        int64_t id = sqlite3_column_int64(stmt.get(), 0);
+
+        const void* nonce_blob = sqlite3_column_blob(stmt.get(), 1);
+        int nonce_size = sqlite3_column_bytes(stmt.get(), 1);
+        if (nonce_size != static_cast<int>(crypto::CryptoService::NONCE_BYTES) || !nonce_blob)
+            continue;
+
+        std::array<uint8_t, crypto::CryptoService::NONCE_BYTES> nonce{};
+        std::memcpy(nonce.data(), nonce_blob, crypto::CryptoService::NONCE_BYTES);
+
+        const void* ct_blob = sqlite3_column_blob(stmt.get(), 2);
+        int ct_size = sqlite3_column_bytes(stmt.get(), 2);
+        if (ct_size <= 0 || !ct_blob) continue;
+
+        std::vector<uint8_t> ciphertext(
+            static_cast<const uint8_t*>(ct_blob),
+            static_cast<const uint8_t*>(ct_blob) + ct_size);
+
+        int64_t updated_at = sqlite3_column_int64(stmt.get(), 3);
+
+        auto aad = build_aad(id);
+        crypto::CryptoService::EncryptedData encrypted{std::move(ciphertext), nonce};
+        auto plaintext = crypto::CryptoService::decrypt(encrypted, subkey, aad);
+        if (!plaintext.has_value()) continue;
+
+        auto note = deserialize_note(*plaintext);
+        if (!note.has_value()) continue;
+
+        std::string lower_title = to_lower(note->title);
+        std::string lower_body = to_lower(note->body);
+
+        bool matched = false;
+        std::string preview;
+
+        // Check title
+        if (lower_title.find(lower_query) != std::string::npos) {
+            matched = true;
+            preview = note->body.substr(0, 80);
+            if (note->body.size() > 80) preview += "...";
+        }
+
+        // Check body — extract context snippet around first match
+        if (!matched) {
+            auto pos = lower_body.find(lower_query);
+            if (pos != std::string::npos) {
+                matched = true;
+                size_t start = (pos > 30) ? pos - 30 : 0;
+                size_t end = std::min(note->body.size(), start + 80);
+                preview = note->body.substr(start, end - start);
+                if (start > 0) preview = "..." + preview;
+                if (end < note->body.size()) preview += "...";
+            }
+        }
+
+        // Check tags
+        if (!matched) {
+            for (const auto& tag : note->tags) {
+                if (to_lower(tag).find(lower_query) != std::string::npos) {
+                    matched = true;
+                    preview = note->body.substr(0, 80);
+                    if (note->body.size() > 80) preview += "...";
+                    break;
+                }
+            }
+        }
+
+        if (matched) {
+            results.push_back(NoteSummary{
+                id, std::move(note->title), std::move(preview),
+                std::move(note->tags), updated_at});
+        }
+    }
+
+    return results;
+}
+
 bool NotesRepository::update_note(const Note& note, const crypto::SecureKey& subkey) {
     // Verify note exists
     {

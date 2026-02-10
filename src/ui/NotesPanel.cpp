@@ -2,6 +2,7 @@
 #include "bastionx/ui/NotesList.h"
 #include "bastionx/ui/NoteEditor.h"
 #include "bastionx/ui/Sidebar.h"
+#include "bastionx/ui/SearchPanel.h"
 #include "bastionx/ui/TabBar.h"
 #include "bastionx/ui/StatusBar.h"
 #include <QHBoxLayout>
@@ -67,6 +68,10 @@ NotesPanel::NotesPanel(QWidget* parent)
     connect(sidebar_, &Sidebar::settingsRequested,
             this, &NotesPanel::settingsRequested);
 
+    // Sidebar -> search
+    connect(sidebar_, &Sidebar::searchRequested,
+            this, &NotesPanel::onSearchRequested);
+
     // Tab bar -> switch/close
     connect(tab_bar_, &TabBar::tabSelected,
             this, &NotesPanel::onTabSelected);
@@ -114,6 +119,7 @@ void NotesPanel::prepareForLock() {
     open_notes_.clear();
     active_note_id_ = 0;
     sidebar_->notesList()->clear();
+    sidebar_->searchPanel()->clear();
     status_bar_->clear();
     note_editor_->setBackend(nullptr, nullptr);
     repo_ = nullptr;
@@ -184,6 +190,7 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
             if (jt != open_notes_.end()) {
                 note_editor_->setDocument(jt->second.document);
                 note_editor_->setTitle(QString::fromStdString(jt->second.note.title));
+                note_editor_->setTags(jt->second.note.tags);
                 status_bar_->setSaveState(jt->second.modified ? "Modified" : "Saved");
                 updateStatusBar();
             }
@@ -200,6 +207,7 @@ void NotesPanel::onNoteSaved() {
             it->second.modified = false;
             it->second.note.title = note_editor_->currentTitle().toStdString();
             it->second.note.body = note_editor_->currentBody().toStdString();
+            it->second.note.tags = note_editor_->currentTags();
         }
 
         tab_bar_->setTabModified(active_note_id_, false);
@@ -228,6 +236,7 @@ void NotesPanel::onNoteDeleted(int64_t note_id) {
             if (jt != open_notes_.end()) {
                 note_editor_->setDocument(jt->second.document);
                 note_editor_->setTitle(QString::fromStdString(jt->second.note.title));
+                note_editor_->setTags(jt->second.note.tags);
                 status_bar_->setSaveState(jt->second.modified ? "Modified" : "Saved");
                 updateStatusBar();
             }
@@ -246,6 +255,12 @@ void NotesPanel::onEditorContentChanged() {
         status_bar_->setSaveState("Modified");
         updateStatusBar();
     }
+}
+
+void NotesPanel::onSearchRequested(const QString& query) {
+    if (!repo_ || !subkey_) return;
+    auto results = repo_->search_notes(*subkey_, query.toStdString());
+    sidebar_->searchPanel()->setResults(results);
 }
 
 void NotesPanel::refreshList() {
@@ -290,7 +305,7 @@ void NotesPanel::openNoteInTab(int64_t note_id) {
     active_note_id_ = note_id;
     note_editor_->setBackend(repo_, subkey_);
     note_editor_->setDocument(doc);
-    note_editor_->switchToNote(note_id, QString::fromStdString(note->title));
+    note_editor_->switchToNote(note_id, QString::fromStdString(note->title), note->tags);
     status_bar_->setSaveState("Saved");
     updateStatusBar();
 }
@@ -302,6 +317,7 @@ void NotesPanel::cacheCurrentEditorState() {
     if (it != open_notes_.end()) {
         it->second.note.title = note_editor_->currentTitle().toStdString();
         it->second.note.body = note_editor_->currentBody().toStdString();
+        it->second.note.tags = note_editor_->currentTags();
     }
 }
 
@@ -318,7 +334,8 @@ void NotesPanel::switchToTab(int64_t note_id) {
 
     // Swap document (preserves per-tab undo history) and set metadata
     note_editor_->setDocument(it->second.document);
-    note_editor_->switchToNote(note_id, QString::fromStdString(it->second.note.title));
+    note_editor_->switchToNote(note_id, QString::fromStdString(it->second.note.title),
+                                it->second.note.tags);
 
     status_bar_->setSaveState(it->second.modified ? "Modified" : "Saved");
     updateStatusBar();

@@ -1,7 +1,7 @@
 #include "bastionx/ui/Sidebar.h"
 #include "bastionx/ui/NotesList.h"
+#include "bastionx/ui/SearchPanel.h"
 #include <QVBoxLayout>
-#include <QLabel>
 
 namespace bastionx {
 namespace ui {
@@ -23,14 +23,9 @@ Sidebar::Sidebar(QWidget* parent)
     notes_list_ = new NotesList(this);
     stack_->addWidget(notes_list_);
 
-    // Page 1: Search placeholder (replaced in 6C)
-    search_placeholder_ = new QWidget(this);
-    auto* search_layout = new QVBoxLayout(search_placeholder_);
-    auto* search_label = new QLabel("Search (coming soon)", search_placeholder_);
-    search_label->setAlignment(Qt::AlignCenter);
-    search_label->setStyleSheet("color: #606060; font-size: 12px;");
-    search_layout->addWidget(search_label);
-    stack_->addWidget(search_placeholder_);
+    // Page 1: Search panel
+    search_panel_ = new SearchPanel(this);
+    stack_->addWidget(search_panel_);
 
     layout->addWidget(stack_);
 
@@ -39,6 +34,12 @@ Sidebar::Sidebar(QWidget* parent)
             this, &Sidebar::noteSelected);
     connect(notes_list_, &NotesList::newNoteRequested,
             this, &Sidebar::newNoteRequested);
+
+    // Forward signals from SearchPanel
+    connect(search_panel_, &SearchPanel::noteSelected,
+            this, &Sidebar::noteSelected);
+    connect(search_panel_, &SearchPanel::searchRequested,
+            this, &Sidebar::searchRequested);
 }
 
 void Sidebar::setActivity(ActivityBar::Activity activity) {

@@ -1,8 +1,11 @@
 #include "bastionx/ui/NoteEditor.h"
 #include "bastionx/ui/FormattingToolbar.h"
+#include "bastionx/ui/TagsWidget.h"
+#include "bastionx/ui/FindBar.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QShortcut>
 
 namespace bastionx {
 namespace ui {
@@ -24,6 +27,10 @@ void NoteEditor::setupUi() {
     title_input_->setPlaceholderText("Title");
     layout->addWidget(title_input_);
 
+    // Tags widget (between title and formatting toolbar)
+    tags_widget_ = new TagsWidget(this);
+    layout->addWidget(tags_widget_);
+
     // Rich text editor
     body_input_ = new QTextEdit(this);
     body_input_->setPlaceholderText("Start writing...");
@@ -32,6 +39,11 @@ void NoteEditor::setupUi() {
     // Formatting toolbar (needs body_input_ reference)
     formatting_toolbar_ = new FormattingToolbar(body_input_, this);
     layout->addWidget(formatting_toolbar_);
+
+    // Find/replace bar (needs body_input_ reference, starts hidden)
+    find_bar_ = new FindBar(body_input_, this);
+    layout->addWidget(find_bar_);
+
     layout->addWidget(body_input_, 1);
 
     // Delete button (compact, bottom)
@@ -52,7 +64,15 @@ void NoteEditor::setupUi() {
     // Content change tracking
     connect(title_input_, &QLineEdit::textChanged, this, &NoteEditor::onContentChanged);
     connect(body_input_, &QTextEdit::textChanged, this, &NoteEditor::onContentChanged);
+    connect(tags_widget_, &TagsWidget::tagsChanged, this, &NoteEditor::onContentChanged);
     connect(delete_button_, &QPushButton::clicked, this, &NoteEditor::onDeleteClicked);
+
+    // Keyboard shortcuts for find/replace
+    auto* findShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(findShortcut, &QShortcut::activated, this, &NoteEditor::showFindBar);
+
+    auto* replaceShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_H), this);
+    connect(replaceShortcut, &QShortcut::activated, this, &NoteEditor::showReplaceBar);
 
     setEditorEnabled(false);
 }
@@ -65,6 +85,7 @@ void NoteEditor::loadNote(const storage::Note& note) {
     current_note_id_ = note.id;
     title_input_->setText(QString::fromStdString(note.title));
     body_input_->setMarkdown(QString::fromStdString(note.body));
+    tags_widget_->setTags(note.tags);
 
     title_input_->blockSignals(false);
     body_input_->blockSignals(false);
@@ -82,6 +103,7 @@ bool NoteEditor::saveCurrentNote() {
     note.id = current_note_id_;
     note.title = title_input_->text().toStdString();
     note.body = body_input_->toMarkdown().toStdString();
+    note.tags = tags_widget_->tags();
 
     bool ok = repo_->update_note(note, *subkey_);
     if (ok) {
@@ -103,6 +125,8 @@ void NoteEditor::clearEditor() {
     title_input_->clear();
     body_input_->clear();
     body_input_->document()->clearUndoRedoStacks();
+    tags_widget_->clear();
+    find_bar_->hideBar();
     current_note_id_ = 0;
     modified_ = false;
 
@@ -128,10 +152,18 @@ QString NoteEditor::currentBody() const {
     return body_input_->toMarkdown();
 }
 
+std::vector<std::string> NoteEditor::currentTags() const {
+    return tags_widget_->tags();
+}
+
 void NoteEditor::setTitle(const QString& title) {
     title_input_->blockSignals(true);
     title_input_->setText(title);
     title_input_->blockSignals(false);
+}
+
+void NoteEditor::setTags(const std::vector<std::string>& tags) {
+    tags_widget_->setTags(tags);
 }
 
 void NoteEditor::setDocument(QTextDocument* doc) {
@@ -144,7 +176,8 @@ QTextDocument* NoteEditor::document() const {
     return body_input_->document();
 }
 
-void NoteEditor::switchToNote(int64_t note_id, const QString& title) {
+void NoteEditor::switchToNote(int64_t note_id, const QString& title,
+                               const std::vector<std::string>& tags) {
     // Switch metadata without touching the document body (preserves undo history)
     autosave_timer_->stop();
     current_note_id_ = note_id;
@@ -153,8 +186,19 @@ void NoteEditor::switchToNote(int64_t note_id, const QString& title) {
     title_input_->setText(title);
     title_input_->blockSignals(false);
 
+    tags_widget_->setTags(tags);
+    find_bar_->hideBar();
+
     setModified(false);
     setEditorEnabled(true);
+}
+
+void NoteEditor::showFindBar() {
+    find_bar_->showFind();
+}
+
+void NoteEditor::showReplaceBar() {
+    find_bar_->showReplace();
 }
 
 void NoteEditor::onContentChanged() {
@@ -198,6 +242,7 @@ void NoteEditor::setEditorEnabled(bool enabled) {
     body_input_->setEnabled(enabled);
     delete_button_->setEnabled(enabled);
     formatting_toolbar_->setEnabled(enabled);
+    tags_widget_->setEnabled(enabled);
 }
 
 }  // namespace ui
