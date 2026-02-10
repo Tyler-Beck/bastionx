@@ -1,4 +1,5 @@
 #include "bastionx/ui/NoteEditor.h"
+#include "bastionx/ui/FormattingToolbar.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -14,32 +15,33 @@ NoteEditor::NoteEditor(QWidget* parent)
 
 void NoteEditor::setupUi() {
     auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(8, 8, 8, 8);
-    layout->setSpacing(4);
+    layout->setContentsMargins(8, 8, 8, 4);
+    layout->setSpacing(0);
 
+    // Title input
     title_input_ = new QLineEdit(this);
     title_input_->setObjectName("titleInput");
     title_input_->setPlaceholderText("Title");
     layout->addWidget(title_input_);
 
-    body_input_ = new QPlainTextEdit(this);
+    // Rich text editor
+    body_input_ = new QTextEdit(this);
     body_input_->setPlaceholderText("Start writing...");
+    body_input_->setAcceptRichText(false);  // Only accept typed text, not pasted HTML
+
+    // Formatting toolbar (needs body_input_ reference)
+    formatting_toolbar_ = new FormattingToolbar(body_input_, this);
+    layout->addWidget(formatting_toolbar_);
     layout->addWidget(body_input_, 1);
 
-    // Bottom bar
+    // Delete button (compact, bottom)
     auto* bottom = new QHBoxLayout();
     bottom->setContentsMargins(0, 4, 0, 0);
 
     delete_button_ = new QPushButton("DELETE", this);
     delete_button_->setObjectName("deleteButton");
     bottom->addWidget(delete_button_);
-
     bottom->addStretch();
-
-    status_label_ = new QLabel("", this);
-    status_label_->setObjectName("statusLabel");
-    bottom->addWidget(status_label_);
-
     layout->addLayout(bottom);
 
     // Auto-save timer
@@ -49,7 +51,7 @@ void NoteEditor::setupUi() {
 
     // Content change tracking
     connect(title_input_, &QLineEdit::textChanged, this, &NoteEditor::onContentChanged);
-    connect(body_input_, &QPlainTextEdit::textChanged, this, &NoteEditor::onContentChanged);
+    connect(body_input_, &QTextEdit::textChanged, this, &NoteEditor::onContentChanged);
     connect(delete_button_, &QPushButton::clicked, this, &NoteEditor::onDeleteClicked);
 
     setEditorEnabled(false);
@@ -62,7 +64,7 @@ void NoteEditor::loadNote(const storage::Note& note) {
 
     current_note_id_ = note.id;
     title_input_->setText(QString::fromStdString(note.title));
-    body_input_->setPlainText(QString::fromStdString(note.body));
+    body_input_->setMarkdown(QString::fromStdString(note.body));
 
     title_input_->blockSignals(false);
     body_input_->blockSignals(false);
@@ -79,7 +81,7 @@ bool NoteEditor::saveCurrentNote() {
     storage::Note note;
     note.id = current_note_id_;
     note.title = title_input_->text().toStdString();
-    note.body = body_input_->toPlainText().toStdString();
+    note.body = body_input_->toMarkdown().toStdString();
 
     bool ok = repo_->update_note(note, *subkey_);
     if (ok) {
@@ -100,9 +102,9 @@ void NoteEditor::clearEditor() {
 
     title_input_->clear();
     body_input_->clear();
+    body_input_->document()->clearUndoRedoStacks();
     current_note_id_ = 0;
     modified_ = false;
-    status_label_->clear();
 
     title_input_->blockSignals(false);
     body_input_->blockSignals(false);
@@ -123,7 +125,36 @@ QString NoteEditor::currentTitle() const {
 }
 
 QString NoteEditor::currentBody() const {
-    return body_input_->toPlainText();
+    return body_input_->toMarkdown();
+}
+
+void NoteEditor::setTitle(const QString& title) {
+    title_input_->blockSignals(true);
+    title_input_->setText(title);
+    title_input_->blockSignals(false);
+}
+
+void NoteEditor::setDocument(QTextDocument* doc) {
+    body_input_->blockSignals(true);
+    body_input_->setDocument(doc);
+    body_input_->blockSignals(false);
+}
+
+QTextDocument* NoteEditor::document() const {
+    return body_input_->document();
+}
+
+void NoteEditor::switchToNote(int64_t note_id, const QString& title) {
+    // Switch metadata without touching the document body (preserves undo history)
+    autosave_timer_->stop();
+    current_note_id_ = note_id;
+
+    title_input_->blockSignals(true);
+    title_input_->setText(title);
+    title_input_->blockSignals(false);
+
+    setModified(false);
+    setEditorEnabled(true);
 }
 
 void NoteEditor::onContentChanged() {
@@ -160,16 +191,13 @@ void NoteEditor::onDeleteClicked() {
 
 void NoteEditor::setModified(bool modified) {
     modified_ = modified;
-    status_label_->setText(modified ? "Modified" : "Saved");
 }
 
 void NoteEditor::setEditorEnabled(bool enabled) {
     title_input_->setEnabled(enabled);
     body_input_->setEnabled(enabled);
     delete_button_->setEnabled(enabled);
-    if (!enabled) {
-        status_label_->clear();
-    }
+    formatting_toolbar_->setEnabled(enabled);
 }
 
 }  // namespace ui

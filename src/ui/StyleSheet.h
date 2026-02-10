@@ -452,6 +452,54 @@ QWidget#statusBar QLabel[class="statusItem"] {
     font-size: 11px;
 }
 
+/* === Formatting Toolbar === */
+QWidget#formattingToolbar {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+QPushButton#formatButton {
+    background-color: transparent;
+    color: #808080;
+    border: none;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+QPushButton#formatButton:hover {
+    color: #d4d4d4;
+    background-color: #303030;
+}
+
+QPushButton#formatButtonActive {
+    background-color: #303030;
+    color: #5f8a6e;
+    border: none;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+QPushButton#formatButtonActive:hover {
+    background-color: #3a3a3a;
+    color: #6ea07f;
+}
+
+/* === Rich Text Editor === */
+QTextEdit {
+    background-color: #1a1a1a;
+    color: #d4d4d4;
+    border: none;
+    padding: 8px;
+    selection-background-color: #3a5a42;
+    font-size: 14px;
+}
+
 )QSS";
 
 }  // namespace ui

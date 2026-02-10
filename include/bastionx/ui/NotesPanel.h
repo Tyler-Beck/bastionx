@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSplitter>
+#include <QTextDocument>
 #include <map>
 #include "bastionx/storage/NotesRepository.h"
 #include "bastionx/crypto/SecureMemory.h"
@@ -46,10 +47,11 @@ private:
     void switchToTab(int64_t note_id);
     void updateStatusBar();
 
-    // In-memory cache of open notes
+    // In-memory cache of open notes (per-tab QTextDocument for undo history)
     struct OpenNote {
         storage::Note note;
         bool modified = false;
+        QTextDocument* document = nullptr;
     };
 
     // Layout

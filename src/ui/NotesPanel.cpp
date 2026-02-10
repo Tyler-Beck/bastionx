@@ -105,6 +105,12 @@ void NotesPanel::prepareForLock() {
 
     note_editor_->clearEditor();
     tab_bar_->closeAllTabs();
+
+    // Delete per-tab documents (editor must not reference them after clear)
+    for (auto& [id, open_note] : open_notes_) {
+        delete open_note.document;
+        open_note.document = nullptr;
+    }
     open_notes_.clear();
     active_note_id_ = 0;
     sidebar_->notesList()->clear();
@@ -158,6 +164,7 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
             }
             repo_->update_note(it->second.note, *subkey_);
         }
+        delete it->second.document;
         open_notes_.erase(it);
     }
 
@@ -175,7 +182,8 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
         if (active_note_id_ > 0) {
             auto jt = open_notes_.find(active_note_id_);
             if (jt != open_notes_.end()) {
-                note_editor_->loadNote(jt->second.note);
+                note_editor_->setDocument(jt->second.document);
+                note_editor_->setTitle(QString::fromStdString(jt->second.note.title));
                 status_bar_->setSaveState(jt->second.modified ? "Modified" : "Saved");
                 updateStatusBar();
             }
@@ -202,7 +210,11 @@ void NotesPanel::onNoteSaved() {
 }
 
 void NotesPanel::onNoteDeleted(int64_t note_id) {
-    open_notes_.erase(note_id);
+    auto it = open_notes_.find(note_id);
+    if (it != open_notes_.end()) {
+        delete it->second.document;
+        open_notes_.erase(it);
+    }
     tab_bar_->removeTab(note_id);
 
     if (tab_bar_->tabCount() == 0) {
@@ -214,7 +226,8 @@ void NotesPanel::onNoteDeleted(int64_t note_id) {
         if (active_note_id_ > 0) {
             auto jt = open_notes_.find(active_note_id_);
             if (jt != open_notes_.end()) {
-                note_editor_->loadNote(jt->second.note);
+                note_editor_->setDocument(jt->second.document);
+                note_editor_->setTitle(QString::fromStdString(jt->second.note.title));
                 status_bar_->setSaveState(jt->second.modified ? "Modified" : "Saved");
                 updateStatusBar();
             }
@@ -262,14 +275,22 @@ void NotesPanel::openNoteInTab(int64_t note_id) {
     auto note = repo_->read_note(note_id, *subkey_);
     if (!note.has_value()) return;
 
-    open_notes_[note_id] = OpenNote{*note, false};
+    // Create per-tab QTextDocument with Markdown content
+    auto* doc = new QTextDocument();
+    doc->setMarkdown(QString::fromStdString(note->body));
+
+    storage::Note loaded_note = *note;
+    loaded_note.id = note_id;
+    open_notes_[note_id] = OpenNote{loaded_note, false, doc};
 
     QString title = QString::fromStdString(note->title);
     if (title.trimmed().isEmpty()) title = "(Untitled)";
     tab_bar_->addTab(note_id, title);
 
     active_note_id_ = note_id;
-    note_editor_->loadNote(*note);
+    note_editor_->setBackend(repo_, subkey_);
+    note_editor_->setDocument(doc);
+    note_editor_->switchToNote(note_id, QString::fromStdString(note->title));
     status_bar_->setSaveState("Saved");
     updateStatusBar();
 }
@@ -294,7 +315,11 @@ void NotesPanel::switchToTab(int64_t note_id) {
 
     active_note_id_ = note_id;
     tab_bar_->setActiveTab(note_id);
-    note_editor_->loadNote(it->second.note);
+
+    // Swap document (preserves per-tab undo history) and set metadata
+    note_editor_->setDocument(it->second.document);
+    note_editor_->switchToNote(note_id, QString::fromStdString(it->second.note.title));
+
     status_bar_->setSaveState(it->second.modified ? "Modified" : "Saved");
     updateStatusBar();
 }

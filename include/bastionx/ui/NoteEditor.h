@@ -3,15 +3,18 @@
 
 #include <QWidget>
 #include <QLineEdit>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QLabel>
 #include <QTimer>
+#include <QTextDocument>
 #include "bastionx/storage/NotesRepository.h"
 #include "bastionx/crypto/SecureMemory.h"
 
 namespace bastionx {
 namespace ui {
+
+class FormattingToolbar;
 
 class NoteEditor : public QWidget {
     Q_OBJECT
@@ -29,6 +32,11 @@ public:
     QString currentTitle() const;
     QString currentBody() const;
 
+    void setTitle(const QString& title);
+    void setDocument(QTextDocument* doc);
+    QTextDocument* document() const;
+    void switchToNote(int64_t note_id, const QString& title);
+
 signals:
     void noteSaved();
     void noteDeleted(int64_t note_id);
@@ -44,11 +52,11 @@ private:
     void setModified(bool modified);
     void setEditorEnabled(bool enabled);
 
-    QLineEdit*       title_input_ = nullptr;
-    QPlainTextEdit*  body_input_ = nullptr;
-    QPushButton*     delete_button_ = nullptr;
-    QLabel*          status_label_ = nullptr;
-    QTimer*          autosave_timer_ = nullptr;
+    QLineEdit*          title_input_ = nullptr;
+    FormattingToolbar*  formatting_toolbar_ = nullptr;
+    QTextEdit*          body_input_ = nullptr;
+    QPushButton*        delete_button_ = nullptr;
+    QTimer*             autosave_timer_ = nullptr;
 
     int64_t current_note_id_ = 0;
     bool modified_ = false;
