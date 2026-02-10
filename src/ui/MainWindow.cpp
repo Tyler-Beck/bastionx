@@ -34,6 +34,10 @@ MainWindow::MainWindow(const std::string& vault_path, QWidget* parent)
     connect(unlock_screen_, &UnlockScreen::createRequested,
             this, &MainWindow::onCreateRequested);
 
+    // Settings from NotesPanel activity bar
+    connect(notes_panel_, &NotesPanel::settingsRequested,
+            this, &MainWindow::onSettingsRequested);
+
     // Inactivity timer
     inactivity_timer_ = new QTimer(this);
     inactivity_timer_->setSingleShot(true);
@@ -67,12 +71,6 @@ void MainWindow::setupToolbar() {
     spacer->setStyleSheet("background: transparent;");
     toolbar_->addWidget(spacer);
 
-    settings_button_ = new QPushButton("SETTINGS", this);
-    settings_button_->setObjectName("lockButton");  // reuse lockButton style
-    connect(settings_button_, &QPushButton::clicked,
-            this, &MainWindow::onSettingsRequested);
-    toolbar_->addWidget(settings_button_);
-
     lock_button_ = new QPushButton("LOCK", this);
     lock_button_->setObjectName("lockButton");
     connect(lock_button_, &QPushButton::clicked,
@@ -85,7 +83,6 @@ void MainWindow::showUnlockScreen() {
     unlock_screen_->reset();
     stack_->setCurrentIndex(0);
     lock_button_->hide();
-    settings_button_->hide();
     inactivity_timer_->stop();
 }
 
@@ -94,7 +91,6 @@ void MainWindow::showNotesPanel() {
     notes_panel_->loadNotes(repo_.get(), &vault_->notes_subkey());
     stack_->setCurrentIndex(1);
     lock_button_->show();
-    settings_button_->show();
     loadAndApplySettings();
     resetInactivityTimer();
 }

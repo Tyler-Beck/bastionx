@@ -53,7 +53,6 @@ private:
     NotesPanel*     notes_panel_ = nullptr;
     QToolBar*       toolbar_ = nullptr;
     QPushButton*    lock_button_ = nullptr;
-    QPushButton*    settings_button_ = nullptr;
     QLabel*         title_label_ = nullptr;
 
     // Backend

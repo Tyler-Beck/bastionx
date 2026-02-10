@@ -118,10 +118,19 @@ int64_t NoteEditor::currentNoteId() const {
     return current_note_id_;
 }
 
+QString NoteEditor::currentTitle() const {
+    return title_input_->text();
+}
+
+QString NoteEditor::currentBody() const {
+    return body_input_->toPlainText();
+}
+
 void NoteEditor::onContentChanged() {
     if (current_note_id_ == 0) return;
     setModified(true);
     autosave_timer_->start(kAutoSaveDelayMs);
+    emit contentChanged();
 }
 
 void NoteEditor::onAutoSave() {

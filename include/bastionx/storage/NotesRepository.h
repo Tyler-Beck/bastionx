@@ -30,6 +30,8 @@ struct Note {
 struct NoteSummary {
     int64_t id = 0;
     std::string title;                   ///< Decrypted title only
+    std::string preview;                 ///< First ~80 chars of body
+    std::vector<std::string> tags;       ///< Tags for sidebar display
     int64_t updated_at = 0;
 };
 

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QListWidget>
+#include <QLineEdit>
 #include <QPushButton>
 #include "bastionx/storage/NotesRepository.h"
 
@@ -25,10 +26,13 @@ signals:
 
 private slots:
     void onItemClicked(QListWidgetItem* item);
+    void onFilterChanged(const QString& text);
 
 private:
     void setupUi();
+    static QString relativeTime(int64_t timestamp);
 
+    QLineEdit*   filter_input_ = nullptr;
     QPushButton* new_button_ = nullptr;
     QListWidget* list_widget_ = nullptr;
 };

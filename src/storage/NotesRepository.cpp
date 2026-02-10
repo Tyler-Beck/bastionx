@@ -250,7 +250,16 @@ std::vector<NoteSummary> NotesRepository::list_notes(const crypto::SecureKey& su
             continue;
         }
 
-        summaries.push_back(NoteSummary{id, std::move(note->title), updated_at});
+        // Extract preview (first ~80 chars of body)
+        std::string preview;
+        if (!note->body.empty()) {
+            preview = note->body.substr(0, 80);
+            if (note->body.size() > 80) preview += "...";
+        }
+
+        summaries.push_back(NoteSummary{
+            id, std::move(note->title), std::move(preview),
+            std::move(note->tags), updated_at});
     }
 
     return summaries;

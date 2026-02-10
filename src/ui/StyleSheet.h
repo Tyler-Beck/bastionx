@@ -328,6 +328,130 @@ QPushButton#cancelButton:hover {
     color: #a0a0a0;
 }
 
+/* === Activity Bar === */
+QWidget#activityBar {
+    background-color: #1e1e1e;
+    border-right: 1px solid #3a3a3a;
+}
+
+QPushButton#activityButton {
+    background-color: transparent;
+    color: #808080;
+    border: none;
+    border-left: 2px solid transparent;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0;
+}
+
+QPushButton#activityButton:hover {
+    color: #d4d4d4;
+}
+
+QPushButton#activityButtonActive {
+    background-color: transparent;
+    color: #d4d4d4;
+    border: none;
+    border-left: 2px solid #5f8a6e;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0;
+}
+
+/* === Sidebar === */
+QWidget#sidebar {
+    background-color: #1e1e1e;
+    border-right: 1px solid #3a3a3a;
+}
+
+/* === Filter Input === */
+QLineEdit#filterInput {
+    background-color: #252525;
+    border: 1px solid #3a3a3a;
+    border-radius: 0;
+    padding: 6px 8px;
+    margin: 4px;
+    font-size: 12px;
+}
+
+QLineEdit#filterInput:focus {
+    border-color: #5f8a6e;
+}
+
+/* === Tab Bar === */
+QWidget#tabBar {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+QScrollArea#tabScrollArea {
+    background-color: #1e1e1e;
+    border: none;
+}
+
+QWidget#tabContainer {
+    background-color: transparent;
+}
+
+QPushButton#tab {
+    background-color: #1e1e1e;
+    color: #808080;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 6px 12px;
+    font-size: 12px;
+    text-align: left;
+}
+
+QPushButton#tab:hover {
+    color: #d4d4d4;
+    background-color: #252525;
+}
+
+QPushButton#tabActive {
+    background-color: #1a1a1a;
+    color: #d4d4d4;
+    border: none;
+    border-bottom: 2px solid #5f8a6e;
+    padding: 6px 12px;
+    font-size: 12px;
+    text-align: left;
+}
+
+QPushButton#tabCloseButton {
+    background-color: transparent;
+    color: #808080;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    min-width: 16px;
+    max-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
+}
+
+QPushButton#tabCloseButton:hover {
+    color: #d4d4d4;
+    background-color: #3a3a3a;
+}
+
+/* === Status Bar === */
+QWidget#statusBar {
+    background-color: #1e1e1e;
+    border-top: 1px solid #3a3a3a;
+}
+
+QLabel#encryptionIndicator {
+    color: #5f8a6e;
+    font-size: 11px;
+    padding-left: 8px;
+}
+
+QWidget#statusBar QLabel[class="statusItem"] {
+    color: #808080;
+    font-size: 11px;
+}
+
 )QSS";
 
 }  // namespace ui

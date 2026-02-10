@@ -26,9 +26,13 @@ public:
     bool hasUnsavedChanges() const;
     int64_t currentNoteId() const;
 
+    QString currentTitle() const;
+    QString currentBody() const;
+
 signals:
     void noteSaved();
     void noteDeleted(int64_t note_id);
+    void contentChanged();
 
 private slots:
     void onContentChanged();
