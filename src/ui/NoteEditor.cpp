@@ -2,6 +2,7 @@
 #include "bastionx/ui/FormattingToolbar.h"
 #include "bastionx/ui/TagsWidget.h"
 #include "bastionx/ui/FindBar.h"
+#include "bastionx/ui/UIConstants.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -9,6 +10,8 @@
 
 namespace bastionx {
 namespace ui {
+
+using namespace constants;
 
 NoteEditor::NoteEditor(QWidget* parent)
     : QWidget(parent)
@@ -18,8 +21,8 @@ NoteEditor::NoteEditor(QWidget* parent)
 
 void NoteEditor::setupUi() {
     auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(8, 8, 8, 4);
-    layout->setSpacing(0);
+    layout->setContentsMargins(kMarginSmall, kMarginSmall, kMarginSmall, kMarginSmall);
+    layout->setSpacing(kSpacingNormal);  // Add breathing room between sections
 
     // Title input
     title_input_ = new QLineEdit(this);
@@ -48,7 +51,7 @@ void NoteEditor::setupUi() {
 
     // Delete button (compact, bottom)
     auto* bottom = new QHBoxLayout();
-    bottom->setContentsMargins(0, 4, 0, 0);
+    bottom->setContentsMargins(0, kMarginSmall, 0, 0);
 
     delete_button_ = new QPushButton("DELETE", this);
     delete_button_->setObjectName("deleteButton");
@@ -124,7 +127,13 @@ void NoteEditor::clearEditor() {
 
     title_input_->clear();
     body_input_->clear();
-    body_input_->document()->clearUndoRedoStacks();
+
+    // CRITICAL FIX: Defensive null check before accessing document
+    QTextDocument* doc = body_input_->document();
+    if (doc) {
+        doc->clearUndoRedoStacks();
+    }
+
     tags_widget_->clear();
     find_bar_->hideBar();
     current_note_id_ = 0;

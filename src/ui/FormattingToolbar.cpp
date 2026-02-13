@@ -1,4 +1,5 @@
 #include "bastionx/ui/FormattingToolbar.h"
+#include "bastionx/ui/UIConstants.h"
 #include <QStyle>
 #include <QTextCursor>
 #include <QTextCharFormat>
@@ -11,11 +12,13 @@
 namespace bastionx {
 namespace ui {
 
+using namespace constants;
+
 FormattingToolbar::FormattingToolbar(QTextEdit* editor, QWidget* parent)
     : QWidget(parent), editor_(editor)
 {
     setObjectName("formattingToolbar");
-    setFixedHeight(32);
+    setFixedHeight(kFormattingToolbarHeight);
     setupUi();
 
     connect(editor_, &QTextEdit::cursorPositionChanged,
@@ -34,8 +37,8 @@ FormattingToolbar::FormattingToolbar(QTextEdit* editor, QWidget* parent)
 
 void FormattingToolbar::setupUi() {
     auto* layout = new QHBoxLayout(this);
-    layout->setContentsMargins(4, 2, 4, 2);
-    layout->setSpacing(1);
+    layout->setContentsMargins(kMarginSmall, kMarginTiny, kMarginSmall, kMarginTiny);
+    layout->setSpacing(kSpacingTight);
 
     // Text formatting group
     bold_btn_ = makeButton("B", "Bold (Ctrl+B)");
@@ -102,14 +105,14 @@ QPushButton* FormattingToolbar::makeButton(const QString& text, const QString& t
     btn->setToolTip(tooltip);
     btn->setFlat(true);
     btn->setCursor(Qt::PointingHandCursor);
-    btn->setFixedSize(28, 24);
+    btn->setFixedSize(kButtonHeightStandard, kButtonHeightStandard);  // 32x32, symmetrical
     return btn;
 }
 
 QWidget* FormattingToolbar::makeSeparator() {
     auto* sep = new QWidget(this);
+    sep->setObjectName("formatSeparator");
     sep->setFixedSize(1, 20);
-    sep->setStyleSheet("background-color: #3a3a3a;");
     return sep;
 }
 

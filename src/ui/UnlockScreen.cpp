@@ -21,16 +21,15 @@ void UnlockScreen::setupUi() {
     layout->setSpacing(16);
 
     title_label_ = new QLabel("BASTIONX", form);
-    title_label_->setObjectName("titleLabel");
+    title_label_->setObjectName("unlockTitle");
     title_label_->setAlignment(Qt::AlignCenter);
-    title_label_->setStyleSheet("color: #f59e0b; font-size: 32px; font-weight: bold; letter-spacing: 3px;");
     layout->addWidget(title_label_);
 
     layout->addSpacing(20);
 
     status_label_ = new QLabel("Enter master password", form);
+    status_label_->setObjectName("unlockStatus");
     status_label_->setAlignment(Qt::AlignCenter);
-    status_label_->setStyleSheet("color: #808080; font-size: 13px;");
     layout->addWidget(status_label_);
 
     password_input_ = new QLineEdit(form);

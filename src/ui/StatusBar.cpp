@@ -1,17 +1,20 @@
 #include "bastionx/ui/StatusBar.h"
+#include "bastionx/ui/UIConstants.h"
 
 namespace bastionx {
 namespace ui {
+
+using namespace constants;
 
 StatusBar::StatusBar(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("statusBar");
-    setFixedHeight(24);
+    setFixedHeight(kStatusBarHeight);
 
     auto* layout = new QHBoxLayout(this);
-    layout->setContentsMargins(8, 0, 8, 0);
-    layout->setSpacing(0);
+    layout->setContentsMargins(kMarginSmall, 0, kMarginSmall, 0);
+    layout->setSpacing(kMarginSmall);  // 8px between status items
 
     save_label_ = new QLabel("", this);
     save_label_->setProperty("class", "statusItem");

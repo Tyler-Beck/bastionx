@@ -50,7 +50,7 @@ NotesPanel::NotesPanel(QWidget* parent)
     // Splitter sizing: sidebar fixed-ish, editor stretches
     splitter_->setStretchFactor(0, 0);
     splitter_->setStretchFactor(1, 1);
-    splitter_->setSizes({280, 650});
+    // Removed hardcoded setSizes - let splitter be responsive with min/max from Sidebar
 
     outer->addWidget(splitter_, 1);
 
@@ -162,6 +162,9 @@ void NotesPanel::onTabSelected(int64_t note_id) {
 }
 
 void NotesPanel::onTabCloseRequested(int64_t note_id) {
+    // CRITICAL FIX: Store document pointer but delay deletion until after clearEditor()
+    QTextDocument* doc_to_delete = nullptr;
+
     auto it = open_notes_.find(note_id);
     if (it != open_notes_.end()) {
         if (it->second.modified && repo_ && subkey_) {
@@ -170,7 +173,8 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
             }
             repo_->update_note(it->second.note, *subkey_);
         }
-        delete it->second.document;
+        // Store document pointer for later deletion
+        doc_to_delete = it->second.document;
         open_notes_.erase(it);
     }
 
@@ -179,7 +183,7 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
 
     if (tab_bar_->tabCount() == 0) {
         active_note_id_ = 0;
-        note_editor_->clearEditor();
+        note_editor_->clearEditor();  // Safe now - clearEditor has defensive null check
         status_bar_->setSaveState("");
         status_bar_->setWordCount(0, 0);
     } else if (was_active) {
@@ -196,6 +200,9 @@ void NotesPanel::onTabCloseRequested(int64_t note_id) {
             }
         }
     }
+
+    // CRITICAL FIX: Delete document AFTER all editor operations are complete
+    delete doc_to_delete;
 
     refreshList();
 }

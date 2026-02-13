@@ -1,17 +1,20 @@
 #include "bastionx/ui/Sidebar.h"
 #include "bastionx/ui/NotesList.h"
 #include "bastionx/ui/SearchPanel.h"
+#include "bastionx/ui/UIConstants.h"
 #include <QVBoxLayout>
 
 namespace bastionx {
 namespace ui {
 
+using namespace constants;
+
 Sidebar::Sidebar(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("sidebar");
-    setMinimumWidth(kMinWidth);
-    setMaximumWidth(kMaxWidth);
+    setMinimumWidth(kSidebarMinWidth);
+    setMaximumWidth(kSidebarMaxWidth);
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);

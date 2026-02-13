@@ -31,10 +31,6 @@ private:
     QStackedWidget* stack_ = nullptr;
     NotesList* notes_list_ = nullptr;
     SearchPanel* search_panel_ = nullptr;
-
-    static constexpr int kMinWidth = 220;
-    static constexpr int kMaxWidth = 400;
-    static constexpr int kDefaultWidth = 280;
 };
 
 }  // namespace ui

@@ -1,15 +1,18 @@
 #include "bastionx/ui/TabBar.h"
+#include "bastionx/ui/UIConstants.h"
 #include <QStyle>
 #include <algorithm>
 
 namespace bastionx {
 namespace ui {
 
+using namespace constants;
+
 TabBar::TabBar(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("tabBar");
-    setFixedHeight(35);
+    setFixedHeight(kTabBarHeight);
 
     auto* outer = new QHBoxLayout(this);
     outer->setContentsMargins(0, 0, 0, 0);
@@ -24,8 +27,8 @@ TabBar::TabBar(QWidget* parent)
 
     scroll_content_ = new QWidget(scroll_area_);
     tab_layout_ = new QHBoxLayout(scroll_content_);
-    tab_layout_->setContentsMargins(0, 0, 0, 0);
-    tab_layout_->setSpacing(0);
+    tab_layout_->setContentsMargins(kMarginTiny, 0, 0, 0);  // 4px left padding
+    tab_layout_->setSpacing(2);  // 2px gap between tabs
     tab_layout_->addStretch();
 
     scroll_area_->setWidget(scroll_content_);
@@ -54,8 +57,8 @@ int TabBar::addTab(int64_t note_id, const QString& title) {
     info.button = new QPushButton(tabLabel(info), info.container);
     info.button->setCursor(Qt::PointingHandCursor);
     info.button->setFlat(true);
-    info.button->setMinimumWidth(80);
-    info.button->setMaximumWidth(200);
+    info.button->setMinimumWidth(kTabMinWidth);
+    info.button->setMaximumWidth(kTabMaxWidth);
     container_layout->addWidget(info.button);
 
     // Close button
@@ -63,7 +66,7 @@ int TabBar::addTab(int64_t note_id, const QString& title) {
     info.close_button->setObjectName("tabCloseButton");
     info.close_button->setCursor(Qt::PointingHandCursor);
     info.close_button->setFlat(true);
-    info.close_button->setFixedSize(20, 20);
+    info.close_button->setFixedSize(kCloseButtonSize, kCloseButtonSize);
     container_layout->addWidget(info.close_button);
 
     // Insert before the stretch spacer

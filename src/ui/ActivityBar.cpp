@@ -1,25 +1,28 @@
 #include "bastionx/ui/ActivityBar.h"
+#include "bastionx/ui/UIConstants.h"
 #include <QStyle>
 
 namespace bastionx {
 namespace ui {
 
+using namespace constants;
+
 ActivityBar::ActivityBar(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("activityBar");
-    setFixedWidth(48);
+    setFixedWidth(kActivityBarWidth);
     setupUi();
 }
 
 void ActivityBar::setupUi() {
     auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 4, 0, 4);
-    layout->setSpacing(0);
+    layout->setContentsMargins(0, kMarginSmall, 0, kMarginSmall);
+    layout->setSpacing(kSpacingTight);  // 4px gap between buttons
 
     auto makeButton = [this](const QString& text) {
         auto* btn = new QPushButton(text, this);
-        btn->setFixedSize(48, 48);
+        btn->setFixedSize(kActivityButtonSize, kActivityButtonSize);
         btn->setFlat(true);
         btn->setCursor(Qt::PointingHandCursor);
         return btn;

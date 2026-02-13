@@ -731,6 +731,28 @@ QPushButton#findButton:hover {
     background-color: #28221d;
 }
 
+/* ============================================================
+   UNLOCK SCREEN
+   ============================================================ */
+QLabel#unlockTitle {
+    color: #f59e0b;
+    font-size: 32px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+QLabel#unlockStatus {
+    color: #b8afa6;
+    font-size: 13px;
+}
+
+/* ============================================================
+   FORMATTING TOOLBAR SEPARATOR
+   ============================================================ */
+QWidget#formatSeparator {
+    background-color: #342c24;
+}
+
 )QSS";
 
 }  // namespace ui

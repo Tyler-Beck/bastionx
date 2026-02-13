@@ -1,24 +1,27 @@
 #include "bastionx/ui/TagsWidget.h"
+#include "bastionx/ui/UIConstants.h"
 #include <algorithm>
 
 namespace bastionx {
 namespace ui {
 
+using namespace constants;
+
 TagsWidget::TagsWidget(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("tagsWidget");
-    setFixedHeight(28);
+    setFixedHeight(kTagsWidgetHeight);
 
     chip_layout_ = new QHBoxLayout(this);
-    chip_layout_->setContentsMargins(4, 0, 4, 0);
-    chip_layout_->setSpacing(4);
+    chip_layout_->setContentsMargins(kMarginSmall, kMarginTiny, kMarginSmall, kMarginTiny);
+    chip_layout_->setSpacing(kSpacingTight);
 
     add_input_ = new QLineEdit(this);
     add_input_->setObjectName("tagInput");
     add_input_->setPlaceholderText("+tag");
-    add_input_->setFixedWidth(80);
-    add_input_->setFixedHeight(22);
+    add_input_->setFixedWidth(kTagInputWidth);
+    add_input_->setFixedHeight(kButtonHeightCompact);
 
     // addStretch before the input to push chips left
     chip_layout_->addStretch();
@@ -84,7 +87,7 @@ void TagsWidget::rebuildChips() {
     for (const auto& tag : tags_) {
         auto* chip = new QPushButton(QString::fromStdString(tag) + " x", this);
         chip->setObjectName("tagChip");
-        chip->setFixedHeight(22);
+        chip->setFixedHeight(kButtonHeightCompact);
         chip->setProperty("tagName", QString::fromStdString(tag));
         connect(chip, &QPushButton::clicked, this, &TagsWidget::onRemoveTag);
         chip_layout_->insertWidget(insert_pos++, chip);
