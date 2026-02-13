@@ -76,7 +76,7 @@ Bastionx follows these principles when evaluating security:
 - Cloud backup provider reads backup
 - System administrator reads home directory
 
-**Bastionx Protection**: ✅ **PROTECTED**
+**Bastionx Protection**: **PROTECTED**
 
 ### Attacker B: Active Local User (No Password)
 
@@ -91,7 +91,7 @@ Bastionx follows these principles when evaluating security:
 - Shared computer user
 - Data forensics (without password cracking)
 
-**Bastionx Protection**: ✅ **PROTECTED**
+**Bastionx Protection**: **PROTECTED**
 
 ### Attacker C: Active Local User (With Physical Access While Unlocked)
 
@@ -105,7 +105,7 @@ Bastionx follows these principles when evaluating security:
 - Attacker accesses computer while user is away (unlocked)
 - Over-the-shoulder observation
 
-**Bastionx Protection**: ❌ **NOT PROTECTED**
+**Bastionx Protection**: **NOT PROTECTED**
 
 **Mitigation**: Auto-lock timer (Phase 4)
 
@@ -123,7 +123,7 @@ Bastionx follows these principles when evaluating security:
 - Rootkit
 - OS-level malware
 
-**Bastionx Protection**: ❌ **NOT PROTECTED**
+**Bastionx Protection**: **NOT PROTECTED**
 
 **Rationale**: No application can protect against OS compromise
 
@@ -139,7 +139,7 @@ Bastionx follows these principles when evaluating security:
 - Attacker uses dictionary attack
 - Attacker uses rainbow tables
 
-**Bastionx Protection**: ⚠️ **PARTIAL PROTECTION**
+**Bastionx Protection**: **PARTIAL PROTECTION**
 
 **Mitigation**: Argon2id MODERATE settings slow down guessing (but cannot prevent weak passwords)
 
@@ -156,7 +156,7 @@ Bastionx follows these principles when evaluating security:
 - Government surveillance
 - Sophisticated targeted attacks
 
-**Bastionx Protection**: ❌ **NOT PROTECTED**
+**Bastionx Protection**: **NOT PROTECTED**
 
 **Rationale**: Bastionx is not designed for high-threat environments
 
@@ -164,7 +164,7 @@ Bastionx follows these principles when evaluating security:
 
 ## Protected Scenarios
 
-### ✅ Scenario 1: Lost or Stolen Laptop
+### Scenario 1: Lost or Stolen Laptop
 
 **Situation**: Laptop is stolen while powered off
 
@@ -184,7 +184,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ✅ Scenario 2: Cloud Backup Inspection
+### Scenario 2: Cloud Backup Inspection
 
 **Situation**: User backs up Bastionx database to cloud (e.g., Dropbox, OneDrive)
 
@@ -200,7 +200,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ✅ Scenario 3: Disk Forensics (Without Password)
+### Scenario 3: Disk Forensics (Without Password)
 
 **Situation**: Forensics investigator analyzes hard drive
 
@@ -222,7 +222,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ✅ Scenario 4: Ciphertext Tampering
+### Scenario 4: Ciphertext Tampering
 
 **Situation**: Attacker modifies encrypted database
 
@@ -239,7 +239,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ✅ Scenario 5: Ciphertext Swapping
+### Scenario 5: Ciphertext Swapping
 
 **Situation**: Attacker swaps ciphertext between notes
 
@@ -257,7 +257,7 @@ Bastionx follows these principles when evaluating security:
 
 ## Unprotected Scenarios
 
-### ❌ Scenario 6: Keylogger Attack
+### Scenario 6: Keylogger Attack
 
 **Situation**: Malware logs keystrokes
 
@@ -278,7 +278,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ❌ Scenario 7: Memory Dump While Unlocked
+### Scenario 7: Memory Dump While Unlocked
 
 **Situation**: Attacker gains memory dump while vault is unlocked
 
@@ -298,7 +298,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ❌ Scenario 8: Weak Password Brute Force
+### Scenario 8: Weak Password Brute Force
 
 **Situation**: User chooses weak password, attacker brute forces
 
@@ -324,7 +324,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ❌ Scenario 9: Cold Boot Attack
+### Scenario 9: Cold Boot Attack
 
 **Situation**: Attacker reboots computer and extracts RAM
 
@@ -345,7 +345,7 @@ Bastionx follows these principles when evaluating security:
 
 ---
 
-### ❌ Scenario 10: Side-Channel Attacks
+### Scenario 10: Side-Channel Attacks
 
 **Situation**: Attacker measures timing, power, or EM emissions
 
@@ -415,14 +415,14 @@ Bastionx follows these principles when evaluating security:
 
 Bastionx **intentionally does NOT**:
 
-1. ❌ Protect against compromised operating systems
-2. ❌ Protect against hardware keyloggers
-3. ❌ Protect against physical access while unlocked
-4. ❌ Protect against weak user-chosen passwords
-5. ❌ Provide password recovery (by design)
-6. ❌ Protect against nation-state attackers
-7. ❌ Provide plausible deniability (hidden volumes)
-8. ❌ Protect against rubber-hose cryptanalysis (coercion)
+1. Protect against compromised operating systems
+2. Protect against hardware keyloggers
+3. Protect against physical access while unlocked
+4. Protect against weak user-chosen passwords
+5. Provide password recovery (by design)
+6. Protect against nation-state attackers
+7. Provide plausible deniability (hidden volumes)
+8. Protect against rubber-hose cryptanalysis (coercion)
 
 ### Why These Limitations?
 
@@ -456,17 +456,17 @@ Bastionx **intentionally does NOT**:
 
 ### Bastionx is Designed For:
 
-✅ **Privacy-conscious users** who want local-only note storage
-✅ **Protection against disk access** (lost laptop, backups, forensics)
-✅ **Protection against unauthorized local users** (shared computers)
-✅ **Defense against opportunistic attackers** (thieves, curious roommates)
+- **Privacy-conscious users** who want local-only note storage
+- **Protection against disk access** (lost laptop, backups, forensics)
+- **Protection against unauthorized local users** (shared computers)
+- **Defense against opportunistic attackers** (thieves, curious roommates)
 
 ### Bastionx is NOT Designed For:
 
-❌ **High-threat environments** (nation-state surveillance)
-❌ **Protection against OS compromise** (malware, rootkits)
-❌ **Protection against weak passwords** (user responsibility)
-❌ **Protection while unlocked** (physical access, screen capture)
+- **High-threat environments** (nation-state surveillance)
+- **Protection against OS compromise** (malware, rootkits)
+- **Protection against weak passwords** (user responsibility)
+- **Protection while unlocked** (physical access, screen capture)
 
 ---
 
@@ -509,5 +509,5 @@ This threat model is influenced by:
 ---
 
 **Last Updated**: 2026-02-13
-**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
-**Document Version**: 1.1
+**Bastionx Version**: 0.7.0 (Phase 8 Complete)
+**Document Version**: 1.2

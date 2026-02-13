@@ -281,31 +281,36 @@ All UI text uses a monospace font.
 
 ### 8.3 Color Palette
 
-**Current Implementation (Phase 7: Premium Dark UI):**
+**Current Implementation (Phase 8: Amber Glassmorphic Cyberpunk UI):**
 
 **Backgrounds:**
-* Base: `#0d0f14` (near-black)
-* Surface levels: `#13151c` < `#1a1d26` < `#22262f` < `#2c3040`
+* Base: `#0f0a08` (deep warm black)
+* Surface levels: `#171210` < `#1f1a16` < `#28221d` < `#322b25`
+* Borders: `#2a2218`, `#342c24`, `#3d352d`
 
 **Text:**
-* Primary: `#e8eaf0` (off-white)
-* Secondary: `#a0a4b8` (light gray)
-* Tertiary: `#606478` (muted gray)
+* Primary: `#f5f1ed` (off-white)
+* Secondary: `#b8afa6` (light gray)
+* Tertiary: `#716b64` (muted gray)
 
-**Accents:**
-* Primary: `#4ade80` (bright green) - focus states, active elements
-* Secondary: `#22c55e` (medium green) - borders, accents
-* Tint: `#0f2318` (dark green tint) - selection backgrounds
+**Accents (Amber):**
+* Primary: `#f59e0b` (amber 500) - focus states, active elements, primary accents
+* Light: `#fbbf24` (amber 400) - hover text, bright accents
+* Bright: `#fcd34d` (amber 300) - active text, selected items
+* Dark: `#d97706` (amber 600) - hover states, pressed states
+* Tint: `rgba(42, 30, 8, 0.60)` (amber-tinted glass) - selection backgrounds
 
 **Semantic Colors:**
-* Error/Destructive: `#f87171` (red)
-* Info: `#60a5fa` (blue) - password change operations only
+* Success/Secure: `#f59e0b` (amber) - locked/encrypted indicators
+* Info: `#06b6d4` (cyan 500) - password change operations
+* Warning: `#ea580c` (orange 600) - warnings
+* Error/Destructive: `#f87171` (red 400) - errors, delete actions
 
 **Design Philosophy:**
-* Minimal, security-focused aesthetic
-* No gradients (except primary buttons)
-* No animations beyond basic transitions
-* Terminal UI inspired
+* Cyberpunk/terminal aesthetic with warm amber accents
+* Glassmorphic elements with semi-transparent panels
+* Minimal animations, security-focused
+* Distinctive alternative to typical green/blue security apps
 
 ---
 
@@ -372,7 +377,7 @@ All UI text uses a monospace font.
 * Auto-lock
 * Threat model documentation
 
-### Phase 5 – SQLCipher Database Encryption ✅
+### Phase 5 – SQLCipher Database Encryption
 
 **Goal**: Replace application-layer encryption with database-level encryption using SQLCipher
 
@@ -389,7 +394,7 @@ All UI text uses a monospace font.
 * `include/bastionx/storage/NotesRepository.h` - Updated for SQLCipher
 * `src/storage/NotesRepository.cpp` - SQLCipher initialization and pragmas
 
-### Phase 6 – Search & Organization ✅
+### Phase 6 – Search & Organization
 
 **Goal**: Full-text search across encrypted notes
 
@@ -415,7 +420,7 @@ All UI text uses a monospace font.
 * `include/bastionx/storage/NotesRepository.h` - search_notes() method
 * `src/storage/NotesRepository.cpp` - search implementation
 
-### Phase 7 – Premium Dark UI ✅
+### Phase 7 – Premium Dark UI
 
 **Goal**: Polished dark theme UI with comprehensive styling
 
@@ -423,7 +428,6 @@ All UI text uses a monospace font.
 
 **Implementation**:
 * Centralized QSS stylesheet (734 lines) in StyleSheet.h
-* Green accent color scheme (see section 8.3 for exact colors)
 * Component-specific styling for all UI elements
 * Activity bar with Notes/Search/Settings modes
 * Multi-tab editor with close buttons and undo history
@@ -436,6 +440,31 @@ All UI text uses a monospace font.
 **Key Files**:
 * `src/ui/StyleSheet.h` - Complete QSS stylesheet
 * 15 UI component files: `MainWindow`, `NotesPanel`, `NoteEditor`, `NotesList`, `UnlockScreen`, `ActivityBar`, `Sidebar`, `TabBar`, `SearchPanel`, `FormattingToolbar`, `FindBar`, `TagsWidget`, `StatusBar`, `SettingsDialog`, `ClipboardGuard`
+
+### Phase 8 – Amber Glassmorphic Cyberpunk UI
+
+**Goal**: Transform visual identity from Matrix-green to distinctive amber cyberpunk aesthetic
+
+**Status**: Complete
+
+**Implementation**:
+* Complete color palette transformation (27 color replacements)
+* Amber accent colors: `#f59e0b`, `#fbbf24`, `#fcd34d` (replaces all green)
+* Warm dark backgrounds: `#0f0a08`, `#171210`, `#1f1a16` (replaces cool grays)
+* Amber-tinted glassmorphic selection states: `rgba(42, 30, 8, 0.60)`
+* Updated StyleSheet.h header to Phase 8 designation
+* Fixed hardcoded green color in UnlockScreen.cpp
+* Cyberpunk/terminal aesthetic with warm accents
+
+**Key Files**:
+* `src/ui/StyleSheet.h` - Updated all color values to amber palette
+* `src/ui/UnlockScreen.cpp` - Fixed title color from green to amber
+
+**Design Rationale**:
+* Differentiation from typical green/blue security apps
+* Warmer, more inviting aesthetic while maintaining professional security tool credibility
+* Cyberpunk/terminal visual identity (Blade Runner, Cyberpunk 2077 inspiration)
+* Amber evokes security alert systems and encrypted terminal sessions
 
 ---
 

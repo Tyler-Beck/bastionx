@@ -81,7 +81,7 @@ Argon2id combines the benefits of:
 ### Why MODERATE Settings?
 
 - **INTERACTIVE** (~100ms): Too weak for offline attacks
-- **MODERATE** (~500ms): ✅ Good balance for local-first app
+- **MODERATE** (~500ms): Good balance for local-first app
 - **SENSITIVE** (~3-5s): Too slow for user experience
 
 ### Implementation
@@ -152,7 +152,7 @@ Master Key (32 bytes, in secure memory)
 
 | Context ID | Purpose | Phase |
 |------------|---------|-------|
-| 1 | Note encryption/decryption | Phase 1 ✅ |
+| 1 | Note encryption/decryption | Phase 1 |
 | 2 | Settings encryption | Phase 2 |
 | 3-999 | Reserved for future use | - |
 
@@ -435,29 +435,20 @@ aad[11] = 0x00;
 
 ### What Bastionx Cryptography Provides
 
-✅ **Confidentiality**: Plaintext cannot be recovered without the correct password
-
-✅ **Integrity**: Tampering with ciphertext is detected (MAC verification fails)
-
-✅ **Authenticity**: Ciphertext cannot be forged without the key
-
-✅ **Binding**: Ciphertext is bound to specific note ID and timestamp (via AAD)
-
-✅ **Key Separation**: Notes and settings use different subkeys
-
-✅ **Forward Secrecy**: Old ciphertexts remain secure even if current key is compromised (password change)
+- **Confidentiality**: Plaintext cannot be recovered without the correct password
+- **Integrity**: Tampering with ciphertext is detected (MAC verification fails)
+- **Authenticity**: Ciphertext cannot be forged without the key
+- **Binding**: Ciphertext is bound to specific note ID and timestamp (via AAD)
+- **Key Separation**: Notes and settings use different subkeys
+- **Forward Secrecy**: Old ciphertexts remain secure even if current key is compromised (password change)
 
 ### What Bastionx Cryptography Does NOT Provide
 
-❌ **Protection Against Weak Passwords**: User must choose strong password
-
-❌ **Protection While Unlocked**: Keys are in memory and vulnerable to memory dumps
-
-❌ **Protection Against OS Compromise**: Keyloggers, malware can steal password
-
-❌ **Protection Against Physical Access**: Cold boot attacks, hardware keyloggers
-
-❌ **Password Recovery**: If password is forgotten, data is permanently lost
+- **Protection Against Weak Passwords**: User must choose strong password
+- **Protection While Unlocked**: Keys are in memory and vulnerable to memory dumps
+- **Protection Against OS Compromise**: Keyloggers, malware can steal password
+- **Protection Against Physical Access**: Cold boot attacks, hardware keyloggers
+- **Password Recovery**: If password is forgotten, data is permanently lost
 
 ---
 
@@ -555,5 +546,5 @@ PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;
 ---
 
 **Last Updated**: 2026-02-13
-**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
+**Bastionx Version**: 0.7.0 (Phase 8 Complete)
 **Document Version**: 1.1

@@ -7,7 +7,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Planned
-- Phase 8: UI/UX enhancements (amber glassmorphic design - see plan file)
+- Future UI/UX enhancements and optimizations
+
+## [0.7.0] - 2026-02-13 - Phase 8 Complete
+
+### Added
+- **Phase 8: Amber Glassmorphic Cyberpunk UI**
+  - Complete color palette transformation from green to amber
+  - Amber accent colors (#f59e0b, #fbbf24, #fcd34d)
+  - Warm dark backgrounds (#0f0a08, #171210, #1f1a16)
+  - Amber-tinted glassmorphic selection states
+  - Updated all 27 color instances across UI
+  - Cyberpunk/terminal aesthetic with professional security feel
+
+### Changed
+- Transformed visual identity from Matrix-green to amber cyberpunk
+- Updated StyleSheet.h header to Phase 8 designation
+- Fixed UnlockScreen title color from green to amber
+- All UI components now use warm amber accent palette
 
 ## [0.6.0] - 2026-02-13 - Phase 6-7 Complete
 
@@ -23,7 +40,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Phase 7: Premium Dark UI**
   - Centralized QSS stylesheet (734 lines) in StyleSheet.h
-  - Green accent color scheme (#4ade80, #22c55e, #0f2318)
   - Activity bar navigation (Notes/Search/Settings modes)
   - Multi-tab editor with close buttons and undo history
   - Rich text formatting toolbar (bold, italic, headings, lists, code, etc.)

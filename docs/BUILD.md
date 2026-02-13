@@ -476,5 +476,5 @@ If you encounter issues not covered here:
 ---
 
 **Last Updated**: 2026-02-13
-**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
-**Document Version**: 1.2
+**Bastionx Version**: 0.7.0 (Phase 8 Complete)
+**Document Version**: 1.3

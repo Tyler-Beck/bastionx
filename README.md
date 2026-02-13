@@ -4,20 +4,20 @@ A privacy-first, local-only desktop notes application for Windows.
 
 ## Project Status
 
-**Current Phase**: Phase 6-7 Implementation Complete
+**Current Phase**: Phase 8 Implementation Complete
 
 **Completed Features:**
-- ✅ Cryptographic core (XChaCha20-Poly1305, Argon2id)
-- ✅ Secure vault with encrypted database (SQLCipher)
-- ✅ Notes management with CRUD operations
-- ✅ Multi-tab note editor with rich text formatting
-- ✅ Full-text search across encrypted notes
-- ✅ Auto-lock with configurable inactivity timeout
-- ✅ Password change with atomic re-encryption
-- ✅ Clipboard security guard
-- ✅ Tags system for note organization
-- ✅ Find/replace functionality
-- ✅ Premium dark UI with green accents
+- Cryptographic core (XChaCha20-Poly1305, Argon2id)
+- Secure vault with encrypted database (SQLCipher)
+- Notes management with CRUD operations
+- Multi-tab note editor with rich text formatting
+- Full-text search across encrypted notes
+- Auto-lock with configurable inactivity timeout
+- Password change with atomic re-encryption
+- Clipboard security guard
+- Tags system for note organization
+- Find/replace functionality
+- Amber glassmorphic cyberpunk UI
 
 ## Overview
 
@@ -162,59 +162,65 @@ bastionx/
 
 ## Current Implementation Status
 
-### Phase 0: Project Infrastructure ✅
+### Phase 0: Project Infrastructure
 - [x] Directory structure
 - [x] CMake build system
 - [x] vcpkg dependency management
 - [x] Test framework setup
 
-### Phase 1: Cryptographic Core ✅
+### Phase 1: Cryptographic Core
 - [x] SecureMemory (RAII wrapper for libsodium)
 - [x] CryptoService (key derivation, encryption, decryption)
 - [x] Unit tests with test vectors
 - [x] Secure memory management
 
-### Phase 2: Storage Layer ✅
+### Phase 2: Storage Layer
 - [x] VaultService (lock/unlock, password validation)
 - [x] NotesRepository (SQLite schema, encrypted CRUD)
 - [x] Settings persistence
 - [x] Encrypted token for password verification
 
-### Phase 3: UI MVP ✅
+### Phase 3: UI MVP
 - [x] Qt Widgets UI framework
 - [x] Vault unlock screen
 - [x] Main window with toolbar
 - [x] Notes list with filtering
 - [x] Note editor (title + body)
 
-### Phase 4: Feature Completion ✅
+### Phase 4: Feature Completion
 - [x] Auto-lock timer with inactivity detection
 - [x] Memory wiping on lock (sodium_memzero)
 - [x] Settings dialog
 - [x] Password change functionality
 - [x] Clipboard guard
 
-### Phase 5: Database Encryption ✅
+### Phase 5: Database Encryption
 - [x] SQLCipher integration
 - [x] Database-level encryption (defense-in-depth)
 - [x] Atomic password change with database re-keying
 - [x] PRAGMA configuration for security
 
-### Phase 6: Search & Organization ✅
+### Phase 6: Search & Organization
 - [x] Full-text search across encrypted notes
 - [x] Search panel with debounced input
 - [x] Tags system for note organization
 - [x] Tags widget with chip UI
 - [x] Find/replace functionality
 
-### Phase 7: Premium UI ✅
+### Phase 7: Premium Dark UI
 - [x] Centralized QSS stylesheet (734 lines)
-- [x] Green accent color scheme
 - [x] Activity bar navigation (Notes/Search/Settings)
 - [x] Multi-tab editor with undo history
 - [x] Rich text formatting toolbar
 - [x] Status bar with encryption indicator
 - [x] Component-specific styling
+
+### Phase 8: Amber Glassmorphic UI
+- [x] Complete color palette transformation from green to amber
+- [x] Amber accent colors (#f59e0b, #fbbf24, #fcd34d)
+- [x] Warm dark backgrounds (#0f0a08, #171210, #1f1a16)
+- [x] Updated all UI components with amber theme
+- [x] Cyberpunk/terminal aesthetic
 
 ## Cryptographic Design
 
@@ -290,7 +296,7 @@ To be determined.
 
 ## Security Note
 
-⚠️ **This software is in early development and has not undergone a security audit.**
+**WARNING: This software is in early development and has not undergone a security audit.**
 
 While every effort has been made to follow cryptographic best practices, this software should not be used for highly sensitive data without proper review and auditing. Use at your own risk.
 
