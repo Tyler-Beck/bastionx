@@ -23,7 +23,7 @@ void UnlockScreen::setupUi() {
     title_label_ = new QLabel("BASTIONX", form);
     title_label_->setObjectName("titleLabel");
     title_label_->setAlignment(Qt::AlignCenter);
-    title_label_->setStyleSheet("color: #f59e0b; font-size: 32px; font-weight: bold; letter-spacing: 3px;");
+    title_label_->setStyleSheet("color: #5f8a6e; font-size: 28px; font-weight: bold;");
     layout->addWidget(title_label_);
 
     layout->addSpacing(20);
