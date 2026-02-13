@@ -1,5 +1,7 @@
 # Bastionx Phase 5: Full Database Encryption (SQLCipher)
 
+**STATUS**: ✅ COMPLETE (commit: 5fd9c25)
+
 ## Context
 
 Phases 0-4 complete (75 tests passing). Currently, note/settings **content** is encrypted at the application layer (XChaCha20-Poly1305), but the SQLite database file itself is plaintext. Anyone with file access can see:
@@ -74,7 +76,7 @@ PRAGMA journal_mode = WAL;            -- WAL files also encrypted with same key
 
 Install:
 ```
-vcpkg install sqlcipher:x64-windows --x-install-root="c:/Users/17326/spring2026/bastionx/vcpkg_installed"
+vcpkg install sqlcipher:x64-windows --x-install-root="<path-to-bastionx>/vcpkg_installed"
 ```
 
 `vcpkg.json`: replace `"sqlite3"` with `"sqlcipher"`

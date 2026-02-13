@@ -4,10 +4,11 @@
 namespace bastionx {
 namespace ui {
 
-// Phase 7: Premium Dark UI
+// Phase 7: Premium Dark UI (CURRENT)
 // Surface levels: #0d0f14 < #13151c < #1a1d26 < #22262f < #2c3040
 // Accent green: #4ade80 / #22c55e / #0f2318 (tint)
 // Text: #e8eaf0 / #a0a4b8 / #606478
+// Last updated: 2026-02-13
 
 inline const char* const kStyleSheet = R"QSS(
 

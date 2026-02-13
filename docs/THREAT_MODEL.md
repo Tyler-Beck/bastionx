@@ -508,5 +508,6 @@ This threat model is influenced by:
 
 ---
 
-**Last Updated**: 2026-02-05
-**Bastionx Version**: 0.1.0 (Phase 0 & 1)
+**Last Updated**: 2026-02-13
+**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
+**Document Version**: 1.1

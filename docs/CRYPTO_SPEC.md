@@ -499,6 +499,45 @@ aad[11] = 0x00;
 
 ---
 
+## SQLCipher Database Encryption (Phase 5)
+
+**Implementation**: Bastionx uses SQLCipher for database-level encryption, providing defense-in-depth beyond application-layer note encryption.
+
+**Key Derivation**:
+```cpp
+// Database key derived from vault master key using crypto_kdf
+const std::string context = "sqlcipher-key";
+std::vector<uint8_t> db_key = crypto.derive_key(vault_key, context);
+```
+
+**SQLCipher Configuration**:
+```cpp
+// Set encryption key
+std::string key_hex = "x'" + bytes_to_hex(db_key) + "'";
+PRAGMA key = key_hex;
+
+// PRAGMA settings for security
+PRAGMA cipher_page_size = 4096;
+PRAGMA kdf_iter = 256000;  // PBKDF2 iterations
+PRAGMA cipher_hmac_algorithm = HMAC_SHA512;
+PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;
+```
+
+**Password Change Process**:
+1. Derive new database key from new master password
+2. Execute `PRAGMA rekey` to re-encrypt database
+3. Re-encrypt all note content with new note subkey
+4. Re-encrypt vault settings
+5. Atomic commit - all or nothing
+
+**Security Properties**:
+- Database files are encrypted at rest
+- PRAGMA key never written to disk
+- Re-keying is atomic (PRAGMA rekey uses temporary database)
+- Keys wiped from memory after use via sodium_memzero
+
+---
+
 ## References
 
 1. **libsodium Documentation**: https://libsodium.gitbook.io/
@@ -510,11 +549,11 @@ aad[11] = 0x00;
 
 ## Changelog
 
+- **2026-02-13**: Added SQLCipher section (Phase 5-7 completion)
 - **2026-02-05**: Initial specification for Phase 0 & 1
-- **TBD**: Add VaultService cryptographic operations (Phase 2)
-- **TBD**: Add settings encryption specification (Phase 2)
 
 ---
 
-**Last Updated**: 2026-02-05
-**Bastionx Version**: 0.1.0 (Phase 0 & 1)
+**Last Updated**: 2026-02-13
+**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
+**Document Version**: 1.1

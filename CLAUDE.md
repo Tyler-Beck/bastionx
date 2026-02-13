@@ -5,7 +5,7 @@
 > **Platform:** Windows (primary and only supported target for v1)
 > **Language / Framework:** C++20 + Qt 6
 > **Crypto:** libsodium
-> **Storage:** SQLite (encrypted at the application layer)
+> **Storage:** SQLCipher (encrypted SQLite database with defense-in-depth)
 
 ---
 
@@ -281,11 +281,31 @@ All UI text uses a monospace font.
 
 ### 8.3 Color Palette
 
-* Background: near-black / dark gray
-* Text: off-white / light gray
-* Accent: muted green or muted blue
+**Current Implementation (Phase 7: Premium Dark UI):**
 
-No bright colors. No red except for destructive actions.
+**Backgrounds:**
+* Base: `#0d0f14` (near-black)
+* Surface levels: `#13151c` < `#1a1d26` < `#22262f` < `#2c3040`
+
+**Text:**
+* Primary: `#e8eaf0` (off-white)
+* Secondary: `#a0a4b8` (light gray)
+* Tertiary: `#606478` (muted gray)
+
+**Accents:**
+* Primary: `#4ade80` (bright green) - focus states, active elements
+* Secondary: `#22c55e` (medium green) - borders, accents
+* Tint: `#0f2318` (dark green tint) - selection backgrounds
+
+**Semantic Colors:**
+* Error/Destructive: `#f87171` (red)
+* Info: `#60a5fa` (blue) - password change operations only
+
+**Design Philosophy:**
+* Minimal, security-focused aesthetic
+* No gradients (except primary buttons)
+* No animations beyond basic transitions
+* Terminal UI inspired
 
 ---
 
@@ -351,6 +371,71 @@ No bright colors. No red except for destructive actions.
 * Memory wiping
 * Auto-lock
 * Threat model documentation
+
+### Phase 5 – SQLCipher Database Encryption ✅
+
+**Goal**: Replace application-layer encryption with database-level encryption using SQLCipher
+
+**Status**: Complete (commit: 5fd9c25)
+
+**Implementation**:
+* Integrated SQLCipher via vcpkg
+* Database-level encryption with key derivation from master password
+* Atomic password change with database re-keying
+* Maintained backward compatibility with existing note encryption
+
+**Key Files**:
+* `CMakeLists.txt` - SQLCipher dependency integration
+* `include/bastionx/storage/NotesRepository.h` - Updated for SQLCipher
+* `src/storage/NotesRepository.cpp` - SQLCipher initialization and pragmas
+
+### Phase 6 – Search & Organization ✅
+
+**Goal**: Full-text search across encrypted notes
+
+**Status**: Complete (commits: 5716ef1, 3d2745f, cebc236)
+
+**Implementation**:
+* SearchPanel UI component with debounced input (300ms)
+* Full-text search decrypts notes on-the-fly for searching
+* Search across title, body, and tags
+* Results display with title and preview
+* Click-to-open search results in editor
+* Tags system for note organization
+* Tags widget with chip UI
+* Find/replace functionality
+
+**Key Files**:
+* `include/bastionx/ui/SearchPanel.h`
+* `src/ui/SearchPanel.cpp`
+* `include/bastionx/ui/TagsWidget.h`
+* `src/ui/TagsWidget.cpp`
+* `include/bastionx/ui/FindBar.h`
+* `src/ui/FindBar.cpp`
+* `include/bastionx/storage/NotesRepository.h` - search_notes() method
+* `src/storage/NotesRepository.cpp` - search implementation
+
+### Phase 7 – Premium Dark UI ✅
+
+**Goal**: Polished dark theme UI with comprehensive styling
+
+**Status**: Complete
+
+**Implementation**:
+* Centralized QSS stylesheet (734 lines) in StyleSheet.h
+* Green accent color scheme (see section 8.3 for exact colors)
+* Component-specific styling for all UI elements
+* Activity bar with Notes/Search/Settings modes
+* Multi-tab editor with close buttons and undo history
+* Rich text formatting toolbar (bold, italic, headings, lists, etc.)
+* Find/replace bar
+* Tags widget with chip UI
+* Status bar with encryption indicator
+* Settings dialog with password change
+
+**Key Files**:
+* `src/ui/StyleSheet.h` - Complete QSS stylesheet
+* 15 UI component files: `MainWindow`, `NotesPanel`, `NoteEditor`, `NotesList`, `UnlockScreen`, `ActivityBar`, `Sidebar`, `TabBar`, `SearchPanel`, `FormattingToolbar`, `FindBar`, `TagsWidget`, `StatusBar`, `SettingsDialog`, `ClipboardGuard`
 
 ---
 

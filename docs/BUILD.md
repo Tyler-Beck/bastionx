@@ -105,7 +105,7 @@ From the vcpkg directory, install all required libraries:
 cd C:\dev\vcpkg
 
 # Install all dependencies at once (recommended)
-.\vcpkg install qt6-base:x64-windows libsodium:x64-windows sqlite3:x64-windows gtest:x64-windows
+.\vcpkg install qt6-base:x64-windows unofficial-sodium:x64-windows sqlcipher:x64-windows nlohmann-json:x64-windows gtest:x64-windows
 ```
 
 Or install individually:
@@ -115,14 +115,19 @@ Or install individually:
 .\vcpkg install qt6-base:x64-windows
 
 # libsodium (cryptography library)
-.\vcpkg install libsodium:x64-windows
+.\vcpkg install unofficial-sodium:x64-windows
 
-# SQLite3 (database)
-.\vcpkg install sqlite3:x64-windows
+# SQLCipher (encrypted database) - replaces sqlite3
+.\vcpkg install sqlcipher:x64-windows
+
+# JSON library
+.\vcpkg install nlohmann-json:x64-windows
 
 # Google Test (unit testing framework)
 .\vcpkg install gtest:x64-windows
 ```
+
+**Note**: We use `sqlcipher` instead of `sqlite3` for database-level encryption (Phase 5).
 
 ### Dependency Installation Notes
 
@@ -145,9 +150,10 @@ Check installed packages:
 You should see:
 ```
 gtest:x64-windows
-libsodium:x64-windows
+nlohmann-json:x64-windows
 qt6-base:x64-windows
-sqlite3:x64-windows
+sqlcipher:x64-windows
+unofficial-sodium:x64-windows
 ```
 
 ---
@@ -157,7 +163,7 @@ sqlite3:x64-windows
 ### Step 1: Clone the Repository (if not already done)
 
 ```powershell
-cd C:\Users\17326\spring2026
+cd <path-to-project-parent>
 git clone <repository-url> bastionx
 cd bastionx
 ```
@@ -373,12 +379,13 @@ To statically link dependencies (larger executable, no DLL dependencies):
 # Install static libraries
 cd C:\dev\vcpkg
 .\vcpkg install qt6-base:x64-windows-static
-.\vcpkg install libsodium:x64-windows-static
-.\vcpkg install sqlite3:x64-windows-static
+.\vcpkg install unofficial-sodium:x64-windows-static
+.\vcpkg install sqlcipher:x64-windows-static
+.\vcpkg install nlohmann-json:x64-windows-static
 .\vcpkg install gtest:x64-windows-static
 
 # Configure with static triplet
-cd C:\Users\17326\spring2026\bastionx\build
+cd <path-to-project-parent>\bastionx\build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
 ```
 
@@ -468,5 +475,6 @@ If you encounter issues not covered here:
 
 ---
 
-**Last Updated**: 2026-02-05
-**Bastionx Version**: 0.1.0 (Phase 0 & 1)
+**Last Updated**: 2026-02-13
+**Bastionx Version**: 0.6.0 (Phase 6-7 Complete)
+**Document Version**: 1.2

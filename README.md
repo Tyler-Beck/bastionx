@@ -4,11 +4,20 @@ A privacy-first, local-only desktop notes application for Windows.
 
 ## Project Status
 
-**Current Phase**: Phase 0 & 1 Implementation Complete
-- ✅ Project infrastructure setup
-- ✅ Cryptographic core implementation
-- ⏳ Dependencies installation required
-- ⏳ Initial build and testing
+**Current Phase**: Phase 6-7 Implementation Complete
+
+**Completed Features:**
+- ✅ Cryptographic core (XChaCha20-Poly1305, Argon2id)
+- ✅ Secure vault with encrypted database (SQLCipher)
+- ✅ Notes management with CRUD operations
+- ✅ Multi-tab note editor with rich text formatting
+- ✅ Full-text search across encrypted notes
+- ✅ Auto-lock with configurable inactivity timeout
+- ✅ Password change with atomic re-encryption
+- ✅ Clipboard security guard
+- ✅ Tags system for note organization
+- ✅ Find/replace functionality
+- ✅ Premium dark UI with green accents
 
 ## Overview
 
@@ -25,8 +34,9 @@ Bastionx is a zero-knowledge, local-first notes application that prioritizes use
 
 - **Language**: C++20
 - **UI Framework**: Qt 6 (Widgets)
-- **Cryptography**: libsodium (no custom crypto)
-- **Storage**: SQLite with application-layer encryption
+- **Cryptography**: libsodium (XChaCha20-Poly1305 AEAD, Argon2id KDF)
+- **Storage**: SQLCipher (encrypted SQLite database)
+- **Data Format**: JSON with AEAD encryption
 - **Platform**: Windows (v1)
 
 ## Prerequisites
@@ -71,10 +81,13 @@ cd C:\dev\vcpkg
 
 # Install dependencies (this will take 30-60 minutes, especially Qt 6)
 .\vcpkg install qt6-base:x64-windows
-.\vcpkg install libsodium:x64-windows
-.\vcpkg install sqlite3:x64-windows
+.\vcpkg install unofficial-sodium:x64-windows
+.\vcpkg install sqlcipher:x64-windows
+.\vcpkg install nlohmann-json:x64-windows
 .\vcpkg install gtest:x64-windows
 ```
+
+**Note**: We use `sqlcipher` for database-level encryption (Phase 5), not `sqlite3`.
 
 **Note**: Qt 6 installation is large (~2-3 GB) and takes significant time. Be patient!
 
@@ -84,7 +97,7 @@ Navigate to the Bastionx directory and build:
 
 ```powershell
 # Navigate to project root
-cd C:\Users\17326\spring2026\bastionx
+cd <path-to-bastionx>
 
 # Create build directory
 mkdir build
@@ -106,7 +119,7 @@ After building, run the test suite to verify everything works:
 
 ```powershell
 # From the build directory
-cd C:\Users\17326\spring2026\bastionx\build
+cd <path-to-bastionx>\build
 
 # Run tests (Debug)
 .\Debug\bastionx_tests.exe
@@ -158,24 +171,50 @@ bastionx/
 ### Phase 1: Cryptographic Core ✅
 - [x] SecureMemory (RAII wrapper for libsodium)
 - [x] CryptoService (key derivation, encryption, decryption)
-- [x] Unit tests (10 core tests + memory safety tests)
-- [x] Test vectors
+- [x] Unit tests with test vectors
+- [x] Secure memory management
 
-### Phase 2: Storage Layer ⏳
-- [ ] VaultService (lock/unlock, password validation)
-- [ ] NotesRepository (SQLite schema, encrypted CRUD)
-- [ ] Integration tests
+### Phase 2: Storage Layer ✅
+- [x] VaultService (lock/unlock, password validation)
+- [x] NotesRepository (SQLite schema, encrypted CRUD)
+- [x] Settings persistence
+- [x] Encrypted token for password verification
 
-### Phase 3: UI MVP ⏳
-- [ ] Qt Widgets UI
-- [ ] Vault unlock screen
-- [ ] Notes list
-- [ ] Note editor
+### Phase 3: UI MVP ✅
+- [x] Qt Widgets UI framework
+- [x] Vault unlock screen
+- [x] Main window with toolbar
+- [x] Notes list with filtering
+- [x] Note editor (title + body)
 
-### Phase 4: Hardening ⏳
-- [ ] Auto-lock timer
-- [ ] Memory wiping on lock
-- [ ] Security documentation
+### Phase 4: Feature Completion ✅
+- [x] Auto-lock timer with inactivity detection
+- [x] Memory wiping on lock (sodium_memzero)
+- [x] Settings dialog
+- [x] Password change functionality
+- [x] Clipboard guard
+
+### Phase 5: Database Encryption ✅
+- [x] SQLCipher integration
+- [x] Database-level encryption (defense-in-depth)
+- [x] Atomic password change with database re-keying
+- [x] PRAGMA configuration for security
+
+### Phase 6: Search & Organization ✅
+- [x] Full-text search across encrypted notes
+- [x] Search panel with debounced input
+- [x] Tags system for note organization
+- [x] Tags widget with chip UI
+- [x] Find/replace functionality
+
+### Phase 7: Premium UI ✅
+- [x] Centralized QSS stylesheet (734 lines)
+- [x] Green accent color scheme
+- [x] Activity bar navigation (Notes/Search/Settings)
+- [x] Multi-tab editor with undo history
+- [x] Rich text formatting toolbar
+- [x] Status bar with encryption indicator
+- [x] Component-specific styling
 
 ## Cryptographic Design
 
