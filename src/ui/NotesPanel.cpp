@@ -19,10 +19,6 @@ NotesPanel::NotesPanel(QWidget* parent)
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
 
-    // Activity bar (far left, 48px)
-    activity_bar_ = new ActivityBar(this);
-    outer->addWidget(activity_bar_);
-
     // Splitter: sidebar | editor area
     splitter_ = new QSplitter(Qt::Horizontal, this);
 
@@ -55,10 +51,6 @@ NotesPanel::NotesPanel(QWidget* parent)
     outer->addWidget(splitter_, 1);
 
     // === Signal connections ===
-
-    // Activity bar -> sidebar
-    connect(activity_bar_, &ActivityBar::activityChanged,
-            this, &NotesPanel::onActivityChanged);
 
     // Sidebar -> open note in tab
     connect(sidebar_, &Sidebar::noteSelected,
@@ -124,10 +116,6 @@ void NotesPanel::prepareForLock() {
     note_editor_->setBackend(nullptr, nullptr);
     repo_ = nullptr;
     subkey_ = nullptr;
-}
-
-void NotesPanel::onActivityChanged(ActivityBar::Activity activity) {
-    sidebar_->setActivity(activity);
 }
 
 void NotesPanel::onNoteSelected(int64_t note_id) {

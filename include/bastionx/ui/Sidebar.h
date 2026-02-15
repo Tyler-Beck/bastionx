@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QStackedWidget>
 #include "bastionx/ui/ActivityBar.h"
+#include "bastionx/ui/ModeSelectorBar.h"
 
 namespace bastionx {
 namespace ui {
@@ -27,7 +28,11 @@ signals:
     void settingsRequested();
     void searchRequested(const QString& query);
 
+private slots:
+    void onActivityChanged(ModeSelectorBar::Activity activity);
+
 private:
+    ModeSelectorBar* mode_selector_ = nullptr;
     QStackedWidget* stack_ = nullptr;
     NotesList* notes_list_ = nullptr;
     SearchPanel* search_panel_ = nullptr;

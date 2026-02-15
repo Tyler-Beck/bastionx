@@ -36,7 +36,8 @@ constexpr int kSpacingSection = kGrid3x;  // 24px between major sections
 // ============================================================
 // COMPONENT HEIGHTS (aligned to 8px grid)
 // ============================================================
-constexpr int kActivityBarWidth = kGrid6x;      // 48px
+constexpr int kActivityBarWidth = kGrid6x;      // 48px (DEPRECATED: Use ModeSelectorBar)
+constexpr int kModeSelectorBarHeight = kGrid4x; // 32px
 constexpr int kTabBarHeight = kGrid4x;          // 32px (was 35px - not grid-aligned)
 constexpr int kFormattingToolbarHeight = kGrid4x; // 32px
 constexpr int kStatusBarHeight = kGrid3x;       // 24px

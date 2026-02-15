@@ -1,6 +1,7 @@
 #include "bastionx/ui/Sidebar.h"
 #include "bastionx/ui/NotesList.h"
 #include "bastionx/ui/SearchPanel.h"
+#include "bastionx/ui/ModeSelectorBar.h"
 #include "bastionx/ui/UIConstants.h"
 #include <QVBoxLayout>
 
@@ -20,6 +21,10 @@ Sidebar::Sidebar(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
+    // Add mode selector at top
+    mode_selector_ = new ModeSelectorBar(this);
+    layout->addWidget(mode_selector_);
+
     stack_ = new QStackedWidget(this);
 
     // Page 0: Notes list
@@ -31,6 +36,10 @@ Sidebar::Sidebar(QWidget* parent)
     stack_->addWidget(search_panel_);
 
     layout->addWidget(stack_);
+
+    // Connect mode selector signals
+    connect(mode_selector_, &ModeSelectorBar::activityChanged,
+            this, &Sidebar::onActivityChanged);
 
     // Forward signals from NotesList
     connect(notes_list_, &NotesList::noteSelected,
@@ -46,6 +55,10 @@ Sidebar::Sidebar(QWidget* parent)
 }
 
 void Sidebar::setActivity(ActivityBar::Activity activity) {
+    // Update mode selector UI
+    mode_selector_->setActivity(static_cast<ModeSelectorBar::Activity>(activity));
+
+    // Switch stacked widget
     switch (activity) {
         case ActivityBar::Notes:
             stack_->setCurrentIndex(0);
@@ -57,6 +70,11 @@ void Sidebar::setActivity(ActivityBar::Activity activity) {
             emit settingsRequested();
             break;
     }
+}
+
+void Sidebar::onActivityChanged(ModeSelectorBar::Activity activity) {
+    // Forward to parent via existing signal chain
+    setActivity(static_cast<ActivityBar::Activity>(activity));
 }
 
 }  // namespace ui

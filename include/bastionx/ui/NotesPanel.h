@@ -7,7 +7,6 @@
 #include <map>
 #include "bastionx/storage/NotesRepository.h"
 #include "bastionx/crypto/SecureMemory.h"
-#include "bastionx/ui/ActivityBar.h"
 
 namespace bastionx {
 namespace ui {
@@ -31,7 +30,6 @@ signals:
     void settingsRequested();
 
 private slots:
-    void onActivityChanged(ActivityBar::Activity activity);
     void onNoteSelected(int64_t note_id);
     void onNewNoteRequested();
     void onTabSelected(int64_t note_id);
@@ -56,7 +54,6 @@ private:
     };
 
     // Layout
-    ActivityBar* activity_bar_ = nullptr;
     Sidebar* sidebar_ = nullptr;
     QSplitter* splitter_ = nullptr;
     QWidget* editor_area_ = nullptr;

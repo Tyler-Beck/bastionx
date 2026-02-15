@@ -1,6 +1,8 @@
 #ifndef BASTIONX_UI_STYLESHEET_H
 #define BASTIONX_UI_STYLESHEET_H
 
+#include <QString>
+
 namespace bastionx {
 namespace ui {
 
@@ -9,7 +11,8 @@ namespace ui {
 // Accent amber: #f59e0b / #fbbf24 / #fcd34d / rgba(42, 30, 8, 0.60) (tint)
 // Text: #f5f1ed / #b8afa6 / #716b64
 
-inline const char* const kStyleSheet = R"QSS(
+// Split into two parts to avoid MSVC's 16KB string literal limit
+inline const char* const kStyleSheet_Part1 = R"QSS(
 
 /* ============================================================
    GLOBAL
@@ -429,6 +432,10 @@ QPushButton#cancelButton:hover {
     color: #f5f1ed;
 }
 
+)QSS";
+
+inline const char* const kStyleSheet_Part2 = R"QSS(
+
 /* ============================================================
    ACTIVITY BAR
    ============================================================ */
@@ -460,6 +467,44 @@ QPushButton#activityButtonActive {
     border-radius: 0;
     font-size: 18px;
     padding: 0;
+}
+
+/* ============================================================
+   MODE SELECTOR BAR (Sliding Blade Edge Selector)
+   ============================================================ */
+QWidget#modeSelectorBar {
+    background-color: #171210;
+    border-bottom: 1px solid #2a2218;
+}
+
+/* Segment labels */
+QLabel#modeSegmentInactive {
+    color: #716b64;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    padding: 8px;
+    background-color: transparent;
+}
+
+QLabel#modeSegmentInactive:hover {
+    color: #b8afa6;
+}
+
+QLabel#modeSegmentActive {
+    color: #fcd34d;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    padding: 8px;
+    background-color: transparent;
+}
+
+/* Blade indicator */
+QFrame#bladeIndicator {
+    background-color: #f59e0b;
+    border: none;
+    border-radius: 2px;
 }
 
 /* ============================================================
@@ -504,13 +549,14 @@ QWidget#tabContainer {
 }
 
 QPushButton#tab {
-    background-color: #171210;
+    background-color: transparent;
     color: #716b64;
     border: none;
-    border-bottom: 2px solid transparent;
     border-radius: 0;
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
     text-align: left;
 }
 
@@ -520,13 +566,14 @@ QPushButton#tab:hover {
 }
 
 QPushButton#tabActive {
-    background-color: #0f0a08;
-    color: #f5f1ed;
+    background-color: transparent;
+    color: #fcd34d;
     border: none;
-    border-bottom: 2px solid #f59e0b;
     border-radius: 0;
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
     text-align: left;
 }
 
@@ -536,16 +583,29 @@ QPushButton#tabCloseButton {
     border: none;
     border-radius: 8px;
     padding: 0;
-    font-size: 12px;
-    min-width: 18px;
-    max-width: 18px;
-    min-height: 18px;
-    max-height: 18px;
+    font-size: 14px;
+    min-width: 16px;
+    max-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
 }
 
 QPushButton#tabCloseButton:hover {
-    color: #f5f1ed;
-    background-color: #322b25;
+    color: #f87171;
+    background-color: rgba(248, 113, 113, 0.15);
+}
+
+/* Tab blade indicator */
+QFrame#tabBladeIndicator {
+    background-color: #f59e0b;
+    border: none;
+    border-radius: 2px 2px 0 0;
+}
+
+/* Tab separators */
+QFrame#tabSeparator {
+    background-color: rgba(61, 46, 24, 0.40);
+    border: none;
 }
 
 /* ============================================================
@@ -754,6 +814,14 @@ QWidget#formatSeparator {
 }
 
 )QSS";
+
+// Concatenate the two parts into a QString
+inline QString getStyleSheet() {
+    return QString(kStyleSheet_Part1) + QString(kStyleSheet_Part2);
+}
+
+// For backward compatibility, create a QString that's returned by value
+inline const QString kStyleSheet = QString(kStyleSheet_Part1) + QString(kStyleSheet_Part2);
 
 }  // namespace ui
 }  // namespace bastionx

@@ -63,6 +63,7 @@ add_executable(bastionx
     src/ui/ClipboardGuard.cpp
     src/ui/SettingsDialog.cpp
     src/ui/ActivityBar.cpp
+    src/ui/ModeSelectorBar.cpp
     src/ui/Sidebar.cpp
     src/ui/TabBar.cpp
     src/ui/StatusBar.cpp
@@ -79,6 +80,7 @@ add_executable(bastionx
     include/bastionx/ui/ClipboardGuard.h
     include/bastionx/ui/SettingsDialog.h
     include/bastionx/ui/ActivityBar.h
+    include/bastionx/ui/ModeSelectorBar.h
     include/bastionx/ui/Sidebar.h
     include/bastionx/ui/TabBar.h
     include/bastionx/ui/StatusBar.h
