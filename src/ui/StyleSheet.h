@@ -194,10 +194,11 @@ QTextEdit {
     background-color: #0f0a08;
     color: #f5f1ed;
     border: none;
-    padding: 12px;
+    padding: 12px 24px;
     selection-background-color: rgba(42, 30, 8, 0.60);
-    font-family: "Segoe UI", "SF Pro Text", sans-serif;
+    font-family: "Fira Mono", "Consolas", "JetBrains Mono", monospace;
     font-size: 14px;
+    line-height: 1.6;
 }
 
 /* ============================================================
@@ -262,7 +263,7 @@ QScrollBar::handle:vertical {
 }
 
 QScrollBar::handle:vertical:hover {
-    background-color: #4a4e60;
+    background-color: #d97706;
 }
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
@@ -282,7 +283,7 @@ QScrollBar::handle:horizontal {
 }
 
 QScrollBar::handle:horizontal:hover {
-    background-color: #4a4e60;
+    background-color: #d97706;
 }
 
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
@@ -399,16 +400,19 @@ QCheckBox::indicator:hover {
    CHANGE PASSWORD BUTTON
    ============================================================ */
 QPushButton#changePasswordButton {
-    background-color: #0f1a2e;
-    border: 1px solid #2563eb;
+    background-color: rgba(6, 182, 212, 0.10);
+    border: 1px solid #06b6d4;
     border-radius: 4px;
-    color: #60a5fa;
+    color: #06b6d4;
     padding: 8px 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
 QPushButton#changePasswordButton:hover {
-    background-color: #172554;
-    color: #93bbfd;
+    background-color: rgba(6, 182, 212, 0.20);
+    border-color: #22d3ee;
+    color: #22d3ee;
 }
 
 QPushButton#changePasswordButton:disabled {
@@ -811,6 +815,52 @@ QLabel#unlockStatus {
    ============================================================ */
 QWidget#formatSeparator {
     background-color: #342c24;
+}
+
+QWidget#formatGroupSeparator {
+    background-color: #f59e0b;
+    opacity: 0.3;
+}
+
+/* ============================================================
+   NOTE EDITOR - BODY CONTAINER
+   ============================================================ */
+QWidget#bodyContainer {
+    background-color: #0f0a08;
+    border: 1px solid #f59e0b;
+    border-radius: 4px;
+}
+
+/* ============================================================
+   NOTE EDITOR - DELETE BUTTON (SUBTLE)
+   ============================================================ */
+QPushButton#deleteButtonSubtle {
+    background-color: transparent;
+    border: none;
+    color: #716b64;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+}
+
+QPushButton#deleteButtonSubtle:hover {
+    color: #f87171;
+    text-decoration: underline;
+}
+
+QPushButton#deleteButtonSubtle:disabled {
+    color: #3d352d;
+}
+
+/* ============================================================
+   NOTE EDITOR - STATUS LABEL
+   ============================================================ */
+QLabel#statusLabel {
+    color: #716b64;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
 )QSS";

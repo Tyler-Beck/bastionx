@@ -32,7 +32,22 @@ private:
     void setupUi();
     QPushButton* makeButton(const QString& text, const QString& tooltip);
     QWidget* makeSeparator();
+    QWidget* makeGroupSeparator();
     void setButtonActive(QPushButton* btn, bool active);
+
+    // State cache to prevent redundant polish/unpolish
+    struct ButtonState {
+        bool bold = false;
+        bool italic = false;
+        bool underline = false;
+        bool strike = false;
+        int heading_level = 0;
+        bool bullet_list = false;
+        bool numbered_list = false;
+        bool blockquote = false;
+        bool code_block = false;
+    };
+    ButtonState last_state_;
 
     QTextEdit* editor_;
     QPushButton* bold_btn_ = nullptr;

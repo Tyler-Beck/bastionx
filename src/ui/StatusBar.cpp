@@ -32,7 +32,19 @@ StatusBar::StatusBar(QWidget* parent)
 }
 
 void StatusBar::setSaveState(const QString& state) {
-    save_label_->setText(state);
+    if (state == "Saved") {
+        save_label_->setText("● Saved");
+        save_label_->setStyleSheet("color: #f59e0b;");  // Amber for saved
+    } else if (state == "Modified") {
+        save_label_->setText("● Modified");
+        save_label_->setStyleSheet("color: #fbbf24;");  // Lighter amber for modified
+    } else if (state == "Saving...") {
+        save_label_->setText("⟳ Saving...");  // U+27F3 Clockwise Arrow
+        save_label_->setStyleSheet("color: #716b64;");  // Muted during save
+    } else {
+        save_label_->setText(state);
+        save_label_->setStyleSheet("color: #716b64;");
+    }
 }
 
 void StatusBar::setWordCount(int words, int chars) {

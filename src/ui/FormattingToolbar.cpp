@@ -41,42 +41,43 @@ void FormattingToolbar::setupUi() {
     layout->setSpacing(kSpacingTight);
 
     // Text formatting group
-    bold_btn_ = makeButton("B", "Bold (Ctrl+B)");
-    italic_btn_ = makeButton("I", "Italic (Ctrl+I)");
-    underline_btn_ = makeButton("U", "Underline (Ctrl+U)");
-    strike_btn_ = makeButton("S", "Strikethrough");
+    // Text formatting group (stronger symbols)
+    bold_btn_ = makeButton("𝐁", "Bold (Ctrl+B)");
+    italic_btn_ = makeButton("𝐈", "Italic (Ctrl+I)");
+    underline_btn_ = makeButton("U̲", "Underline (Ctrl+U)");
+    strike_btn_ = makeButton("S̶", "Strikethrough");
 
     layout->addWidget(bold_btn_);
     layout->addWidget(italic_btn_);
     layout->addWidget(underline_btn_);
     layout->addWidget(strike_btn_);
 
-    layout->addWidget(makeSeparator());
+    layout->addWidget(makeGroupSeparator());
 
-    // Heading group
-    h1_btn_ = makeButton("H1", "Heading 1");
-    h2_btn_ = makeButton("H2", "Heading 2");
-    h3_btn_ = makeButton("H3", "Heading 3");
+    // Heading group (with subscript numbers for clarity)
+    h1_btn_ = makeButton("H₁", "Heading 1");
+    h2_btn_ = makeButton("H₂", "Heading 2");
+    h3_btn_ = makeButton("H₃", "Heading 3");
 
     layout->addWidget(h1_btn_);
     layout->addWidget(h2_btn_);
     layout->addWidget(h3_btn_);
 
-    layout->addWidget(makeSeparator());
+    layout->addWidget(makeGroupSeparator());
 
-    // List group
-    bullet_btn_ = makeButton("-", "Bullet List");
+    // List group (better symbols)
+    bullet_btn_ = makeButton("•", "Bullet List");
     numbered_btn_ = makeButton("1.", "Numbered List");
 
     layout->addWidget(bullet_btn_);
     layout->addWidget(numbered_btn_);
 
-    layout->addWidget(makeSeparator());
+    layout->addWidget(makeGroupSeparator());
 
-    // Block group
-    quote_btn_ = makeButton(">", "Blockquote");
-    code_btn_ = makeButton("<>", "Code Block");
-    hr_btn_ = makeButton("--", "Horizontal Rule");
+    // Block group (improved symbols)
+    quote_btn_ = makeButton("❝", "Blockquote");
+    code_btn_ = makeButton("⟨⟩", "Code Block");
+    hr_btn_ = makeButton("─", "Horizontal Rule");
 
     layout->addWidget(quote_btn_);
     layout->addWidget(code_btn_);
@@ -113,6 +114,13 @@ QWidget* FormattingToolbar::makeSeparator() {
     auto* sep = new QWidget(this);
     sep->setObjectName("formatSeparator");
     sep->setFixedSize(1, 20);
+    return sep;
+}
+
+QWidget* FormattingToolbar::makeGroupSeparator() {
+    auto* sep = new QWidget(this);
+    sep->setObjectName("formatGroupSeparator");
+    sep->setFixedSize(2, 20);  // 2px wide (thicker than normal separator)
     return sep;
 }
 
@@ -282,31 +290,46 @@ void FormattingToolbar::updateButtonStates() {
     QTextCharFormat charFmt = cursor.charFormat();
     QTextBlockFormat blockFmt = cursor.blockFormat();
 
-    // Character formats
-    setButtonActive(bold_btn_, charFmt.fontWeight() == QFont::Bold);
-    setButtonActive(italic_btn_, charFmt.fontItalic());
-    setButtonActive(underline_btn_, charFmt.fontUnderline());
-    setButtonActive(strike_btn_, charFmt.fontStrikeOut());
+    // Calculate new state
+    ButtonState new_state;
+    new_state.bold = (charFmt.fontWeight() == QFont::Bold);
+    new_state.italic = charFmt.fontItalic();
+    new_state.underline = charFmt.fontUnderline();
+    new_state.strike = charFmt.fontStrikeOut();
+    new_state.heading_level = blockFmt.headingLevel();
 
-    // Heading level
-    int headingLevel = blockFmt.headingLevel();
-    setButtonActive(h1_btn_, headingLevel == 1);
-    setButtonActive(h2_btn_, headingLevel == 2);
-    setButtonActive(h3_btn_, headingLevel == 3);
-
-    // Lists
     QTextList* list = cursor.currentList();
-    bool isBullet = list && list->format().style() == QTextListFormat::ListDisc;
-    bool isNumbered = list && list->format().style() == QTextListFormat::ListDecimal;
-    setButtonActive(bullet_btn_, isBullet);
-    setButtonActive(numbered_btn_, isNumbered);
+    new_state.bullet_list = list && list->format().style() == QTextListFormat::ListDisc;
+    new_state.numbered_list = list && list->format().style() == QTextListFormat::ListDecimal;
+    new_state.blockquote = blockFmt.property(QTextFormat::BlockQuoteLevel).toInt() > 0;
+    new_state.code_block = blockFmt.property(QTextFormat::BlockCodeFence).toBool();
 
-    // Block formats
-    int quoteLevel = blockFmt.property(QTextFormat::BlockQuoteLevel).toInt();
-    setButtonActive(quote_btn_, quoteLevel > 0);
+    // Only update buttons that changed state (prevents flicker)
+    if (new_state.bold != last_state_.bold)
+        setButtonActive(bold_btn_, new_state.bold);
+    if (new_state.italic != last_state_.italic)
+        setButtonActive(italic_btn_, new_state.italic);
+    if (new_state.underline != last_state_.underline)
+        setButtonActive(underline_btn_, new_state.underline);
+    if (new_state.strike != last_state_.strike)
+        setButtonActive(strike_btn_, new_state.strike);
 
-    bool isCode = blockFmt.property(QTextFormat::BlockCodeFence).toBool();
-    setButtonActive(code_btn_, isCode);
+    if (new_state.heading_level != last_state_.heading_level) {
+        setButtonActive(h1_btn_, new_state.heading_level == 1);
+        setButtonActive(h2_btn_, new_state.heading_level == 2);
+        setButtonActive(h3_btn_, new_state.heading_level == 3);
+    }
+
+    if (new_state.bullet_list != last_state_.bullet_list)
+        setButtonActive(bullet_btn_, new_state.bullet_list);
+    if (new_state.numbered_list != last_state_.numbered_list)
+        setButtonActive(numbered_btn_, new_state.numbered_list);
+    if (new_state.blockquote != last_state_.blockquote)
+        setButtonActive(quote_btn_, new_state.blockquote);
+    if (new_state.code_block != last_state_.code_block)
+        setButtonActive(code_btn_, new_state.code_block);
+
+    last_state_ = new_state;
 }
 
 }  // namespace ui

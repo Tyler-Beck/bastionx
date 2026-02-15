@@ -21,8 +21,8 @@ NoteEditor::NoteEditor(QWidget* parent)
 
 void NoteEditor::setupUi() {
     auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(kMarginSmall, kMarginSmall, kMarginSmall, kMarginSmall);
-    layout->setSpacing(kSpacingNormal);  // Add breathing room between sections
+    layout->setContentsMargins(kMarginSmall, kMarginSmall, kMarginSmall, 0);
+    layout->setSpacing(0);  // Manual spacing control
 
     // Title input
     title_input_ = new QLineEdit(this);
@@ -30,34 +30,55 @@ void NoteEditor::setupUi() {
     title_input_->setPlaceholderText("Title");
     layout->addWidget(title_input_);
 
-    // Tags widget (between title and formatting toolbar)
-    tags_widget_ = new TagsWidget(this);
-    layout->addWidget(tags_widget_);
-
-    // Rich text editor
+    // Rich text editor (create early for toolbar reference)
     body_input_ = new QTextEdit(this);
     body_input_->setPlaceholderText("Start writing...");
-    body_input_->setAcceptRichText(false);  // Only accept typed text, not pasted HTML
+    body_input_->setAcceptRichText(false);
 
-    // Formatting toolbar (needs body_input_ reference)
+    // Formatting toolbar (MOVED UP - now directly below title)
     formatting_toolbar_ = new FormattingToolbar(body_input_, this);
     layout->addWidget(formatting_toolbar_);
 
-    // Find/replace bar (needs body_input_ reference, starts hidden)
+    // Tags widget (MOVED DOWN - now below toolbar)
+    tags_widget_ = new TagsWidget(this);
+    layout->addWidget(tags_widget_);
+
+    // Find/replace bar
     find_bar_ = new FindBar(body_input_, this);
     layout->addWidget(find_bar_);
 
-    layout->addWidget(body_input_, 1);
+    // Body editor wrapper
+    auto* body_container = new QWidget(this);
+    body_container->setObjectName("bodyContainer");
+    auto* body_layout = new QHBoxLayout(body_container);
+    body_layout->setContentsMargins(kMarginSmall, kMarginSmall, kMarginSmall, kMarginSmall);
+    body_layout->setSpacing(0);
 
-    // Delete button (compact, bottom)
-    auto* bottom = new QHBoxLayout();
-    bottom->setContentsMargins(0, kMarginSmall, 0, 0);
+    // Left-aligned, full width with margins
+    body_layout->addWidget(body_input_);
 
-    delete_button_ = new QPushButton("DELETE", this);
-    delete_button_->setObjectName("deleteButton");
-    bottom->addWidget(delete_button_);
-    bottom->addStretch();
-    layout->addLayout(bottom);
+    layout->addWidget(body_container, 1);  // Takes remaining space
+
+    // Bottom bar: Status + Delete (low-key)
+    auto* bottom_bar = new QWidget(this);
+    bottom_bar->setObjectName("bottomBar");
+    auto* bottom_layout = new QHBoxLayout(bottom_bar);
+    bottom_layout->setContentsMargins(kMarginSmall, kMarginTiny, kMarginSmall, kMarginTiny);
+    bottom_layout->setSpacing(kMarginSmall);
+
+    // Status indicators (left side)
+    status_label_ = new QLabel("", this);
+    status_label_->setObjectName("statusLabel");
+    bottom_layout->addWidget(status_label_);
+
+    bottom_layout->addStretch();
+
+    // Delete button (right side, subtle)
+    delete_button_ = new QPushButton("Delete Note", this);
+    delete_button_->setObjectName("deleteButtonSubtle");
+    bottom_layout->addWidget(delete_button_);
+
+    layout->addWidget(bottom_bar);
 
     // Auto-save timer
     autosave_timer_ = new QTimer(this);

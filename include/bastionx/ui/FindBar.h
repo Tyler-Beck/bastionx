@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QTextEdit>
+#include <QPropertyAnimation>
 
 namespace bastionx {
 namespace ui {
@@ -46,6 +47,10 @@ private:
 
     // Replace row widgets (toggled visibility)
     QWidget* replace_row_ = nullptr;
+
+    // Height animations for smooth transitions
+    QPropertyAnimation* height_animation_ = nullptr;
+    QPropertyAnimation* height_animation_min_ = nullptr;
 
     int current_match_ = 0;
     int total_matches_ = 0;

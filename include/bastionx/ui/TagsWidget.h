@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QLabel>
 #include <vector>
 #include <string>
 
@@ -31,6 +32,7 @@ private slots:
 private:
     void rebuildChips();
 
+    QLabel* tags_label_ = nullptr;
     QHBoxLayout* chip_layout_ = nullptr;
     QLineEdit* add_input_ = nullptr;
     std::vector<std::string> tags_;

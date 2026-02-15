@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QTextCursor>
 #include <QTextBlock>
+#include <QTimer>
 
 namespace bastionx {
 namespace ui {
@@ -80,19 +81,47 @@ FindBar::FindBar(QTextEdit* editor, QWidget* parent)
     connect(replace_btn_, &QPushButton::clicked, this, &FindBar::onReplace);
     connect(replace_all_btn_, &QPushButton::clicked, this, &FindBar::onReplaceAll);
     connect(close_btn_, &QPushButton::clicked, this, &FindBar::hideBar);
+
+    // Create reusable height animations
+    height_animation_ = new QPropertyAnimation(this, "maximumHeight", this);
+    height_animation_->setDuration(200);
+    height_animation_->setEasingCurve(QEasingCurve::OutCubic);
+
+    height_animation_min_ = new QPropertyAnimation(this, "minimumHeight", this);
+    height_animation_min_->setDuration(200);
+    height_animation_min_->setEasingCurve(QEasingCurve::OutCubic);
 }
 
 void FindBar::showFind() {
     replace_row_->hide();
-    setFixedHeight(32);
+
+    // Animate to find-only height
+    height_animation_->setStartValue(height());
+    height_animation_->setEndValue(32);
+    height_animation_min_->setStartValue(height());
+    height_animation_min_->setEndValue(32);
+    height_animation_->start();
+    height_animation_min_->start();
+
     show();
     find_input_->setFocus();
     find_input_->selectAll();
 }
 
 void FindBar::showReplace() {
-    replace_row_->show();
-    setFixedHeight(64);
+    // Animate to replace height
+    height_animation_->setStartValue(height());
+    height_animation_->setEndValue(64);
+    height_animation_min_->setStartValue(height());
+    height_animation_min_->setEndValue(64);
+    height_animation_->start();
+    height_animation_min_->start();
+
+    // Show replace row after animation starts
+    QTimer::singleShot(50, [this]() {
+        replace_row_->show();
+    });
+
     show();
     find_input_->setFocus();
     find_input_->selectAll();

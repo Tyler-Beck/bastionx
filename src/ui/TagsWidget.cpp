@@ -13,19 +13,30 @@ TagsWidget::TagsWidget(QWidget* parent)
     setObjectName("tagsWidget");
     setFixedHeight(kTagsWidgetHeight);
 
-    chip_layout_ = new QHBoxLayout(this);
-    chip_layout_->setContentsMargins(kMarginSmall, kMarginTiny, kMarginSmall, kMarginTiny);
-    chip_layout_->setSpacing(kSpacingTight);
+    auto* main_layout = new QHBoxLayout(this);
+    main_layout->setContentsMargins(kMarginSmall, kMarginTiny, kMarginSmall, kMarginTiny);
+    main_layout->setSpacing(0);
 
+    // Label for context
+    tags_label_ = new QLabel("Tags:", this);
+    tags_label_->setObjectName("tagsLabel");
+    main_layout->addWidget(tags_label_);
+    main_layout->addSpacing(kSpacingTight);
+
+    // Chip layout for tag chips
+    chip_layout_ = new QHBoxLayout();
+    chip_layout_->setSpacing(kSpacingTight);
+    main_layout->addLayout(chip_layout_);
+
+    main_layout->addStretch();
+
+    // Input for adding new tags
     add_input_ = new QLineEdit(this);
     add_input_->setObjectName("tagInput");
-    add_input_->setPlaceholderText("+tag");
+    add_input_->setPlaceholderText("+ add tag");
     add_input_->setFixedWidth(kTagInputWidth);
     add_input_->setFixedHeight(kButtonHeightCompact);
-
-    // addStretch before the input to push chips left
-    chip_layout_->addStretch();
-    chip_layout_->addWidget(add_input_);
+    main_layout->addWidget(add_input_);
 
     connect(add_input_, &QLineEdit::returnPressed, this, &TagsWidget::onAddTag);
 }

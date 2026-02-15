@@ -66,6 +66,7 @@ private:
     FindBar*            find_bar_ = nullptr;
     QTextEdit*          body_input_ = nullptr;
     QPushButton*        delete_button_ = nullptr;
+    QLabel*             status_label_ = nullptr;
     QTimer*             autosave_timer_ = nullptr;
 
     int64_t current_note_id_ = 0;
