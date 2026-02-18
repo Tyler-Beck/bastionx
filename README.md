@@ -1,309 +1,204 @@
-# Bastionx
+```
+██████╗  █████╗ ███████╗████████╗██╗ ██████╗ ███╗   ██╗██╗  ██╗
+██╔══██╗██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║╚██╗██╔╝
+██████╔╝███████║███████╗   ██║   ██║██║   ██║██╔██╗ ██║ ╚███╔╝
+██╔══██╗██╔══██║╚════██║   ██║   ██║██║   ██║██║╚██╗██║ ██╔██╗
+██████╔╝██║  ██║███████║   ██║   ██║╚██████╔╝██║ ╚████║██╔╝ ██╗
+╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝
+```
 
-A privacy-first, local-only desktop notes application for Windows.
+<div align="center">
 
-## Project Status
+**A privacy-first, zero-knowledge encrypted notes vault for Windows.**
 
-**Current Phase**: Phase 8 Implementation Complete
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](docs/BUILD.md)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt)
+[![Version](https://img.shields.io/badge/version-0.7.0-amber.svg)](CHANGELOG.md)
+<!-- Update the build badge URL below with your GitHub username after publishing -->
+[![Build](https://github.com/Tyler-Beck/bastionx/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
 
-**Completed Features:**
-- Cryptographic core (XChaCha20-Poly1305, Argon2id)
-- Secure vault with encrypted database (SQLCipher)
-- Notes management with CRUD operations
-- Multi-tab note editor with rich text formatting
-- Full-text search across encrypted notes
-- Auto-lock with configurable inactivity timeout
-- Password change with atomic re-encryption
-- Clipboard security guard
-- Tags system for note organization
-- Find/replace functionality
-- Amber glassmorphic cyberpunk UI
+</div>
 
-## Overview
+---
 
-Bastionx is a zero-knowledge, local-first notes application that prioritizes user privacy above all else. All data is encrypted at rest using modern cryptographic primitives, and the master password never leaves your machine.
+> No cloud. No accounts. No telemetry. Your notes, encrypted, on your machine — full stop.
 
-### Key Features
+<!-- TODO: Add a screenshot of the amber UI here -->
+<!-- ![BastionX Screenshot](docs/screenshots/main.png) -->
 
-- **Zero-Knowledge Encryption**: Your data is encrypted with a master key derived from your password
-- **Local-First**: No cloud sync, no user accounts, no telemetry
-- **Modern Cryptography**: Argon2id for key derivation, XChaCha20-Poly1305 for encryption
-- **Privacy by Design**: Explicit threat model and security guarantees
+---
 
-### Technology Stack
+## What is BastionX?
 
-- **Language**: C++20
-- **UI Framework**: Qt 6 (Widgets)
-- **Cryptography**: libsodium (XChaCha20-Poly1305 AEAD, Argon2id KDF)
-- **Storage**: SQLCipher (encrypted SQLite database)
-- **Data Format**: JSON with AEAD encryption
-- **Platform**: Windows (v1)
+BastionX is a desktop notes application where every note is encrypted with a master password that never leaves your machine. Think of it as a local alternative to Google Docs or Notion, built for people who want their sensitive notes to stay private — encrypted at rest, encrypted in the database, secured in memory.
 
-## Prerequisites
+Built on battle-tested cryptography from [libsodium](https://libsodium.gitbook.io/) and [SQLCipher](https://www.zetetic.net/sqlcipher/), with a zero-knowledge design: even if someone copies your vault file, they get ciphertext.
 
-Before building Bastionx, you need:
+---
 
-1. **Visual Studio 2022** (Community Edition or better)
-   - Workload: "Desktop development with C++"
-   - Ensure C++20 support is enabled
-   - Include CMake tools for Windows
+## Features
 
-2. **CMake 3.21+** (included with Visual Studio or install separately)
+- **Zero-knowledge encryption** — Argon2id key derivation + XChaCha20-Poly1305 AEAD per note
+- **Defense-in-depth** — SQLCipher encrypts the entire database as a second layer
+- **Secure memory** — key material lives in `sodium_malloc` memory, wiped with `sodium_memzero` on lock
+- **Auto-lock** — configurable inactivity timeout wipes keys from memory
+- **Password change** — atomic re-encryption of all notes in a single SQLite transaction
+- **Full-text search** — searches across encrypted notes (decrypt-in-memory, never stores plaintext)
+- **Tags system** — organize notes with a tag chip UI
+- **Find & Replace** — in-editor search with match counting
+- **Rich text editor** — formatting toolbar with bold, italic, headings, lists, code blocks
+- **Multi-tab editor** — open multiple notes simultaneously with per-tab undo history
+- **Clipboard guard** — optional clipboard clearing after sensitive copy operations
+- **Amber cyberpunk UI** — dark theme with amber accent palette
 
-3. **vcpkg** (C++ package manager) - see installation below
+---
 
 ## Quick Start
 
-### 1. Install vcpkg
+### Download (Recommended)
 
-vcpkg is Microsoft's C++ package manager. Install it once and use it for all C++ projects.
+Pre-built Windows binaries are available on the [Releases page](../../releases/latest).
+
+> Download `BastionX-x64.zip`, extract, and run `bastionx.exe`. No installer required.
+
+### Build from Source
+
+See [docs/BUILD.md](docs/BUILD.md) for the full guide. Short version:
+
+**Prerequisites**: Visual Studio 2022 (C++ workload), CMake 3.21+, vcpkg
 
 ```powershell
-# Clone vcpkg to a permanent location
+# Install vcpkg (one-time)
 git clone https://github.com/Microsoft/vcpkg.git C:\dev\vcpkg
+C:\dev\vcpkg\bootstrap-vcpkg.bat
+C:\dev\vcpkg\vcpkg integrate install
 
-# Navigate to vcpkg directory
-cd C:\dev\vcpkg
-
-# Bootstrap vcpkg
-.\bootstrap-vcpkg.bat
-
-# Integrate with Visual Studio (one-time setup)
-.\vcpkg integrate install
-```
-
-### 2. Install Dependencies
-
-From the vcpkg directory, install all required libraries:
-
-```powershell
-cd C:\dev\vcpkg
-
-# Install dependencies (this will take 30-60 minutes, especially Qt 6)
-.\vcpkg install qt6-base:x64-windows
-.\vcpkg install unofficial-sodium:x64-windows
-.\vcpkg install sqlcipher:x64-windows
-.\vcpkg install nlohmann-json:x64-windows
-.\vcpkg install gtest:x64-windows
-```
-
-**Note**: We use `sqlcipher` for database-level encryption (Phase 5), not `sqlite3`.
-
-**Note**: Qt 6 installation is large (~2-3 GB) and takes significant time. Be patient!
-
-### 3. Build the Project
-
-Navigate to the Bastionx directory and build:
-
-```powershell
-# Navigate to project root
-cd <path-to-bastionx>
-
-# Create build directory
-mkdir build
-cd build
-
-# Configure with CMake (pointing to vcpkg toolchain)
+# Build BastionX
+git clone https://github.com/<your-username>/bastionx.git
+cd bastionx
+mkdir build && cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
-
-# Build (Debug configuration)
-cmake --build . --config Debug
-
-# Or build Release configuration
 cmake --build . --config Release
 ```
 
-### 4. Run Tests
+> **Note**: Qt 6 dependency is ~2-3 GB and takes 30-60 minutes to install on first build. Be patient.
 
-After building, run the test suite to verify everything works:
+---
 
-```powershell
-# From the build directory
-cd <path-to-bastionx>\build
+## Security Model
 
-# Run tests (Debug)
-.\Debug\bastionx_tests.exe
+BastionX uses [libsodium](https://libsodium.gitbook.io/) exclusively — no custom cryptography.
 
-# Or run tests (Release)
-.\Release\bastionx_tests.exe
-```
+| Layer | Primitive | Purpose |
+|---|---|---|
+| Key derivation | Argon2id (MODERATE: 3 passes, 256MB RAM) | Derive 32-byte master key from password |
+| Subkeys | BLAKE2b KDF (`crypto_kdf`) | 4 independent subkeys from master key |
+| Note encryption | XChaCha20-Poly1305 AEAD | Per-note encryption with random 24-byte nonce |
+| Database encryption | SQLCipher (PBKDF2-HMAC-SHA512, 256k iter) | Full database-level encryption |
+| Memory | `sodium_malloc` / `sodium_memzero` | Keys in locked, non-swappable memory; wiped on lock |
+
+**Protected against**: copying the vault file, disk inspection, casual physical access while locked.
+
+**Not protected against**: keyloggers, a compromised OS, physical access while unlocked.
+
+See [docs/CRYPTO_SPEC.md](docs/CRYPTO_SPEC.md) and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) for the full specification.
+
+> **Audit status**: This software has not undergone a formal third-party security audit. Community security review is welcomed — see [SECURITY.md](SECURITY.md) for responsible disclosure.
+
+---
+
+## Technology Stack
+
+| Component | Technology |
+|---|---|
+| Language | C++20 |
+| UI Framework | Qt 6 (Widgets) |
+| Cryptography | libsodium 1.0.20 |
+| Database | SQLCipher 4.6.1 (encrypted SQLite) |
+| Serialization | nlohmann/json 3.12.0 |
+| Build System | CMake 3.21+ with vcpkg |
+| Testing | Google Test 1.17.0 |
+
+---
 
 ## Project Structure
 
 ```
 bastionx/
-├── CLAUDE.md                    # Project specification
-├── README.md                    # This file
-├── CMakeLists.txt              # Build configuration
-├── vcpkg.json                  # Dependency manifest
-│
 ├── include/bastionx/           # Public headers
-│   └── crypto/
-│       ├── CryptoService.h     # Core cryptographic API
-│       └── SecureMemory.h      # Secure memory RAII wrapper
-│
+│   ├── crypto/                 # CryptoService, SecureMemory
+│   ├── storage/                # NotesRepository
+│   ├── vault/                  # VaultService, VaultSettings
+│   └── ui/                     # All UI component headers
 ├── src/                        # Implementation
-│   └── crypto/
-│       ├── CryptoService.cpp   # Crypto implementation
-│       └── SecureMemory.cpp    # Memory management
-│
-├── tests/                      # Unit tests
-│   ├── test_main.cpp
-│   └── crypto/
-│       ├── CryptoServiceTest.cpp
-│       ├── SecureMemoryTest.cpp
-│       └── test_vectors.h
-│
+│   ├── crypto/                 # libsodium wrappers
+│   ├── storage/                # SQLCipher CRUD
+│   ├── vault/                  # Vault lifecycle and key management
+│   └── ui/                     # Qt Widgets implementation (15 components)
+├── tests/                      # Google Test suite
+│   ├── crypto/                 # Key derivation, encryption/decryption tests
+│   ├── storage/                # Repository and search tests
+│   ├── vault/                  # Vault lifecycle and password change tests
+│   └── integration/            # End-to-end integration tests
 └── docs/                       # Documentation
     ├── CRYPTO_SPEC.md          # Cryptographic specification
-    ├── BUILD.md                # Detailed build guide
-    └── THREAT_MODEL.md         # Security threat model
+    ├── THREAT_MODEL.md         # Security threat model
+    └── BUILD.md                # Detailed build guide
 ```
-
-## Current Implementation Status
-
-### Phase 0: Project Infrastructure
-- [x] Directory structure
-- [x] CMake build system
-- [x] vcpkg dependency management
-- [x] Test framework setup
-
-### Phase 1: Cryptographic Core
-- [x] SecureMemory (RAII wrapper for libsodium)
-- [x] CryptoService (key derivation, encryption, decryption)
-- [x] Unit tests with test vectors
-- [x] Secure memory management
-
-### Phase 2: Storage Layer
-- [x] VaultService (lock/unlock, password validation)
-- [x] NotesRepository (SQLite schema, encrypted CRUD)
-- [x] Settings persistence
-- [x] Encrypted token for password verification
-
-### Phase 3: UI MVP
-- [x] Qt Widgets UI framework
-- [x] Vault unlock screen
-- [x] Main window with toolbar
-- [x] Notes list with filtering
-- [x] Note editor (title + body)
-
-### Phase 4: Feature Completion
-- [x] Auto-lock timer with inactivity detection
-- [x] Memory wiping on lock (sodium_memzero)
-- [x] Settings dialog
-- [x] Password change functionality
-- [x] Clipboard guard
-
-### Phase 5: Database Encryption
-- [x] SQLCipher integration
-- [x] Database-level encryption (defense-in-depth)
-- [x] Atomic password change with database re-keying
-- [x] PRAGMA configuration for security
-
-### Phase 6: Search & Organization
-- [x] Full-text search across encrypted notes
-- [x] Search panel with debounced input
-- [x] Tags system for note organization
-- [x] Tags widget with chip UI
-- [x] Find/replace functionality
-
-### Phase 7: Premium Dark UI
-- [x] Centralized QSS stylesheet (734 lines)
-- [x] Activity bar navigation (Notes/Search/Settings)
-- [x] Multi-tab editor with undo history
-- [x] Rich text formatting toolbar
-- [x] Status bar with encryption indicator
-- [x] Component-specific styling
-
-### Phase 8: Amber Glassmorphic UI
-- [x] Complete color palette transformation from green to amber
-- [x] Amber accent colors (#f59e0b, #fbbf24, #fcd34d)
-- [x] Warm dark backgrounds (#0f0a08, #171210, #1f1a16)
-- [x] Updated all UI components with amber theme
-- [x] Cyberpunk/terminal aesthetic
-
-## Cryptographic Design
-
-Bastionx uses libsodium exclusively for all cryptographic operations:
-
-- **Key Derivation**: Argon2id (MODERATE settings)
-  - Protects against offline password attacks
-  - ~100-500ms derivation time (intentional)
-
-- **Encryption**: XChaCha20-Poly1305 (AEAD)
-  - 24-byte random nonce per encryption
-  - 16-byte Poly1305 MAC for authentication
-  - Associated data (AAD) prevents ciphertext swapping
-
-- **Subkey Derivation**: crypto_kdf
-  - Separate subkeys for notes, settings, etc.
-  - Prevents cross-use of cryptographic material
-
-See [docs/CRYPTO_SPEC.md](docs/CRYPTO_SPEC.md) for detailed cryptographic specification.
-
-## Threat Model
-
-### Protected Against
-- Attacker copying the SQLite database file
-- Curious local user without the master password
-- Disk inspection or backups
-
-### Not Protected Against
-- Compromised operating system
-- Keyloggers or malware
-- Weak user passwords
-- Physical access while app is unlocked
-
-See [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) for complete threat model.
-
-## Development Workflow
-
-### Running Tests
-```powershell
-# Run all tests
-.\build\Debug\bastionx_tests.exe
-
-# Run tests with verbose output
-.\build\Debug\bastionx_tests.exe --gtest_verbose
-
-# Run specific test
-.\build\Debug\bastionx_tests.exe --gtest_filter=CryptoServiceTest.EncryptDecryptRoundTrip
-```
-
-### Rebuilding
-```powershell
-# Clean build
-cd build
-cmake --build . --config Debug --clean-first
-
-# Rebuild only changed files
-cmake --build . --config Debug
-```
-
-## Contributing
-
-This is currently a personal project for educational and portfolio purposes. If you have suggestions or find security issues, please open an issue.
-
-## License
-
-To be determined.
-
-## Acknowledgments
-
-- [libsodium](https://libsodium.gitbook.io/) for providing safe, modern cryptographic primitives
-- [Qt Framework](https://www.qt.io/) for cross-platform UI capabilities
-- [vcpkg](https://vcpkg.io/) for C++ package management
-
-## Security Note
-
-**WARNING: This software is in early development and has not undergone a security audit.**
-
-While every effort has been made to follow cryptographic best practices, this software should not be used for highly sensitive data without proper review and auditing. Use at your own risk.
 
 ---
 
-**Documentation:**
-- [CLAUDE.md](CLAUDE.md) - Complete project specification
-- [docs/BUILD.md](docs/BUILD.md) - Detailed build instructions
-- [docs/CRYPTO_SPEC.md](docs/CRYPTO_SPEC.md) - Cryptographic specification
-- [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) - Security threat model
+## Running Tests
+
+```powershell
+# From the build directory
+.\Debug\bastionx_tests.exe
+
+# Filter to a specific test
+.\Debug\bastionx_tests.exe --gtest_filter=CryptoServiceTest.*
+
+# Verbose output
+.\Debug\bastionx_tests.exe --gtest_verbose
+```
+
+---
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a PR — especially the section on cryptographic code.
+
+For security vulnerabilities, see [SECURITY.md](SECURITY.md). Do not open public Issues for security findings.
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [MANIFESTO.md](MANIFESTO.md) | Project motivation, design philosophy, and implementation overview |
+| [docs/CRYPTO_SPEC.md](docs/CRYPTO_SPEC.md) | Detailed cryptographic specification |
+| [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | What BastionX protects against (and doesn't) |
+| [docs/BUILD.md](docs/BUILD.md) | Complete build instructions |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [CLAUDE.md](CLAUDE.md) | Internal design decisions and implementation notes |
+
+---
+
+## License
+
+BastionX is licensed under the [MIT License](LICENSE).
+
+Third-party dependencies (Qt, libsodium, SQLCipher, nlohmann-json) have their own licenses — see [LICENSE](LICENSE) for the full list and attribution.
+
+> **Qt LGPL note**: Qt 6 is used under LGPL v3. Binary distributions of BastionX dynamically link Qt, preserving your right to relink against a modified Qt. Source distributions (this repo) allow you to build with any compatible Qt installation.
+
+---
+
+## Acknowledgments
+
+- [libsodium](https://libsodium.gitbook.io/) — safe, audited, modern cryptographic primitives
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) — transparent, full-database encryption for SQLite
+- [Qt Framework](https://www.qt.io/) — cross-platform desktop UI
+- [vcpkg](https://vcpkg.io/) — C++ package management
+- [nlohmann/json](https://github.com/nlohmann/json) — clean, header-only JSON for C++

@@ -45,3 +45,18 @@ test_vaults/
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# Credentials and secrets (defensive: prevent accidental commits)
+.env
+.env.*
+*.env
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.crt
+secrets.*
+*credentials*
+
+CLAUDE.md
